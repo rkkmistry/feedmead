@@ -3,6 +3,7 @@ var infowindow;
 var map;
 var autocomplete;
 var myPlaces;
+var soichiro;
 
 //INITIALIZE MAP/AUTOCOMPLETE
 function initMap(theData) {
