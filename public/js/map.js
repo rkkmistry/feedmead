@@ -1,8 +1,10 @@
-var infowindow = new google.maps.InfoWindow();
+//GLOBAL MAP VARIABLES
+var infowindow;
 var map;
 var autocomplete;
 var myPlaces;
 
+//INITIALIZE MAP/AUTOCOMPLETE
 function initMap(theData) {
   myPlaces = theData;
   console.log(myPlaces);
@@ -78,6 +80,7 @@ function initMapMarker(myObj, temp){
   });
   
   //create and open infowindow for new marker
+  infowindow = new google.maps.InfoWindow();
   var saveID = "save-" + myObj.id;
   var deleteID = "delete-" + myObj.id;
 
