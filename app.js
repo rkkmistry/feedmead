@@ -33,20 +33,23 @@ app.get("/", function(req, res) {
   res.render('index.html');
 });
 
+//app.get("/user/:user", function(req, res) {
+//  res.render('index.html', {page: 'othermap'});
+//});
 
 //Data serving via path parameter
-app.get("/user/:userID", function(req,res){
-  console.log(req.params);
-  var theUserID = req.params.userID;
-  res.send("The user id is: " + theUserID);
-});
+//app.get("/:user", function(req,res){
+//  console.log(req.params);
+//  var theUserID = req.params.userID;
+//  res.send(theUserID);
+//});
 
 //Data serving via query parameter
-app.get("/user", function(req,res){
-  console.log(req.query);
-  var theUserID = req.query.userID || "not sure";
-  res.send("The user id is: " + theUserID);
-});
+//app.get("/user", function(req,res){
+//  console.log(req.query);
+//  var theUserID = req.query.userID || "not sure";
+//  res.send("The user id is: " + theUserID);
+//});
 
 //Respond with data
 app.get("/data", function(req, res) {
@@ -66,6 +69,28 @@ app.get("/data", function(req, res) {
 		//Send the data
 		console.log(theRows); 
 		res.json(theRows);
+	});
+});
+
+app.get("/data/:user", function(req,res){
+	var user = req.params.user;
+	console.log('Getting' + user + "'s Places");
+	// Use the Request lib to GET the data in the CouchDB on Cloudant
+	Request.get({
+		url: cloudant_URL+"/_all_docs?include_docs=true",
+		auth: {
+			user: cloudant_KEY,
+			pass: cloudant_PASSWORD
+		},
+		json: true
+	},
+	function (error, response, body){
+		var theRows = body.rows;
+		// Filter the results to match the current word
+		var filteredRows = theRows.filter(function (d) {
+			return d.doc.name == "Masala";
+		});
+		res.json(filteredRows);
 	});
 });
 

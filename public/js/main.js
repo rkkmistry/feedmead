@@ -1,20 +1,18 @@
-var myPlaces = [];
-
-function getData() {
+function getData(edit, user) {
   $.ajax({
-    url: '/data',
-    type: 'GET',
-    dataType: 'json',
-    error: function(data) {
-      console.log(data);
-      alert("Oh No! Try a refresh?");
-    },
-    success: function(data) {
-      console.log("We have data");
-      initMap(data);
-    }
+      url: '/data/' + user,
+      type: 'GET',
+      dataType: 'json',
+      error: function(data) {
+        console.log(data);
+        alert("Oh No! Try a refresh?");
+      },
+      success: function(data) {
+        console.log("We have data");
+        initMap(data, edit);
+      }
     });
-  }
+}
 
 function saveData(obj, marker){
   $.ajax({
@@ -32,7 +30,7 @@ function saveData(obj, marker){
       obj._id = resp.id;
       obj._rev = resp.rev;
       console.log("Making the official marker");
-      initMapMarker(obj, false); 
+      initMapMarker(obj, false, true); 
       marker.setMap(null);
     }
   });
@@ -61,6 +59,9 @@ function deleteData(obj, callback){
 }
 
 $(document).ready(function(){
-  getData();
-  console.log("Requesting data...");
+  getData(true, '');
+  
+  $('a').click(function(){
+    getData(false, 'krishan')
+  });
 });

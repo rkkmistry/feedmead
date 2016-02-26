@@ -2,11 +2,12 @@
 var infowindow = new google.maps.InfoWindow();
 var map;
 var autocomplete;
-var myPlaces = [];
+var myPlaces;
 var myMarkers = [];
 
 //INITIALIZE MAP/AUTOCOMPLETE
-function initMap(theData) {
+function initMap(theData, edit) {
+  myPlaces = [];
   theData.forEach(function(obj){
     myPlaces.push(obj.doc);
   });
@@ -21,68 +22,81 @@ function initMap(theData) {
     streetViewControl: false
   });
   
-  //AUTOCOMPLETE PROPERTIES
-  var input = /** @type {!HTMLInputElement} */(document.getElementById('pac-input'));
-  map.controls[google.maps.ControlPosition.TOP_LEFT].push(input);
-    var options = {
-    types: ['establishment']
-  };
-  autocomplete = new google.maps.places.Autocomplete(input, options);
-  autocomplete.bindTo('bounds', map);
+  if (edit) {
+    //AUTOCOMPLETE PROPERTIES
+    $('body').prepend(" <input id='pac-input' class='controls' type='text' placeholder='Enter a location'> ");
+    var input = /** @type {!HTMLInputElement} */(document.getElementById('pac-input'));
+    map.controls[google.maps.ControlPosition.TOP_LEFT].push(input);
+      var options = {
+      types: ['establishment']
+    };
+    autocomplete = new google.maps.places.Autocomplete(input, options);
+    autocomplete.bindTo('bounds', map);
+  }
 
   console.log("Putting existing data on the map");
-  setMapOnPlaces(myPlaces, map);
+  setMapOnPlaces([], map, edit);
+  setMapOnPlaces(myPlaces, map, edit);
  // displayPlaces(theData);
   
-  console.log("Configuring map settings...");
-  autocomplete.addListener('place_changed', function() {
-    myMarkers.forEach(function(marker){
-      if (marker.temp) {
-        marker.setMap(null);
-      }
+  if (edit) {
+    console.log("Configuring map settings...");
+    autocomplete.addListener('place_changed', function() {
+      myMarkers.forEach(function(marker){
+        if (marker.temp) {
+          marker.setMap(null);
+        }
+      });
+      //get place and pull out desired properties in new object
+      var place = autocomplete.getPlace();
+      $('#pac-input').val('');
+
+      var myObj = { 
+        name: place.name,
+        address: place.formatted_address,
+        loc: place.geometry.location,
+        id: place.id,
+        place_id: place.place_id,
+        phone: place.international_phone_number
+      };
+
+  //Mildly better syntax for below   
+  //    if(myPlaces.every(function(found){
+  //      found.place_id == myObj.place_id
+  //    })) {
+  //      
+  //    }
+
+      var notinArray = true;
+      myPlaces.forEach(function(found) {
+        if (found.place_id == myObj.place_id) {
+          notinArray = false;
+          myMarkers.forEach(function(foundMark){
+            if(found.place_id == foundMark.place_id) {
+              map.setCenter(found.loc);
+              infowindow.setContent(found.content);
+              infowindow.open(map, foundMark);
+              return;
+            }
+          });
+          return;
+        }
+      });
+
+      if (notinArray) {
+        map.setCenter(myObj.loc);
+        initMapMarker(myObj, true, true);
+      } 
+
     });
-    //get place and pull out desired properties in new object
-    var place = autocomplete.getPlace();
-    $('#pac-input').val('');
-    
-    var myObj = { 
-      name: place.name,
-      address: place.formatted_address,
-      loc: place.geometry.location,
-      id: place.id,
-      place_id: place.place_id,
-      phone: place.international_phone_number
-    };
-    
-    var notinArray = true;
-    myPlaces.forEach(function(found) {
-      if (found.place_id == myObj.place_id) {
-        notinArray = false;
-        myMarkers.forEach(function(foundMark){
-          if(found.place_id == foundMark.place_id) {
-            map.setCenter(found.loc);
-            infowindow.setContent(found.content);
-            infowindow.open(map, foundMark);
-            return;
-          }
-        });
-        return;
-      }
-    });
-    
-    if (notinArray) {
-      map.setCenter(myObj.loc);
-      initMapMarker(myObj, true);
-    } 
-    
-  });
+  }
 }
 
-function setMapOnPlaces(placeList, map) {
+function setMapOnPlaces(placeList, map, edit) {
   console.log("Setting Places on Map...");
-  for (var i = 0; i < placeList.length; i++) {
-    initMapMarker(placeList[i], false);  
-  }
+  placeList.forEach(function(obj){
+    initMapMarker(obj, false, true);  
+  })
 }
 
 function displayPlaces(thePlaces) {
@@ -95,7 +109,7 @@ function displayPlaces(thePlaces) {
 }
 
 //set up a marker on the map, if temp = false then it is a marker from the database
-function initMapMarker(myObj, temp){
+function initMapMarker(myObj, temp, edit){
 
   //create new marker for place, center and erase input
   var marker = new google.maps.Marker({
@@ -108,14 +122,18 @@ function initMapMarker(myObj, temp){
   
   myMarkers.push(marker);
   
-  //create and open infowindow for new marker
-  var saveID = "save-" + myObj.place_id;
-  var deleteID = "delete-" + myObj.place_id;
+  if (edit) {
+    //create and open infowindow for new marker
+    var saveID = "save-" + myObj.place_id;
+    var deleteID = "delete-" + myObj.place_id;
 
-  if (temp) {
-    myObj.content = '<div><strong>' + myObj.name + '</strong><br>' + myObj.address + '<br>' + "<input id='" + saveID + "' type='button' value='Save'>" +  "<input id='" + deleteID + "' type='button' value='Delete'>";
+    if (temp) {
+      myObj.content = '<div><strong>' + myObj.name + '</strong><br>' + myObj.address + '<br>' + "<input id='" + saveID + "' type='button' value='Save'>" +  "<input id='" + deleteID + "' type='button' value='Delete'>";
+    } else {
+      myObj.content = '<div><strong>' + myObj.name + '</strong><br>' + myObj.address + '<br>' + "<input id='" + deleteID + "' type='button' value='Delete'>";
+    }
   } else {
-    myObj.content = '<div><strong>' + myObj.name + '</strong><br>' + myObj.address + '<br>' + "<input id='" + deleteID + "' type='button' value='Delete'>";
+     myObj.content = '<div><strong>' + myObj.name + '</strong><br>' + myObj.address;
   }
   
   infowindow.setContent(myObj.content);
@@ -156,7 +174,7 @@ function initMapMarker(myObj, temp){
         myPlaces.push(myObj);
         saveData(myObj, marker);
         
-        console.log("Waiting for couch confitmation...");
+        console.log("Waiting for couch confirmation...");
       }
 //      displayPlaces(myPlaces);
     });
