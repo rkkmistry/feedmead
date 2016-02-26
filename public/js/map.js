@@ -1,13 +1,15 @@
 //GLOBAL MAP VARIABLES
-var infowindow;
+var infowindow = new google.maps.InfoWindow();
 var map;
 var autocomplete;
-var myPlaces;
-var soichiro;
+var myPlaces = [];
+var myMarkers = [];
 
 //INITIALIZE MAP/AUTOCOMPLETE
 function initMap(theData) {
-  myPlaces = theData;
+  theData.forEach(function(obj){
+    myPlaces.push(obj.doc);
+  });
   console.log(myPlaces);
   console.log("Initializing map...");
   
@@ -22,18 +24,25 @@ function initMap(theData) {
   //AUTOCOMPLETE PROPERTIES
   var input = /** @type {!HTMLInputElement} */(document.getElementById('pac-input'));
   map.controls[google.maps.ControlPosition.TOP_LEFT].push(input);
-  autocomplete = new google.maps.places.Autocomplete(input);
+    var options = {
+    types: ['establishment']
+  };
+  autocomplete = new google.maps.places.Autocomplete(input, options);
   autocomplete.bindTo('bounds', map);
-//  autocomplete.setTypes('establishments');
-  
+
   console.log("Putting existing data on the map");
   setMapOnPlaces(myPlaces, map);
  // displayPlaces(theData);
   
   console.log("Configuring map settings...");
   autocomplete.addListener('place_changed', function() {
+    myMarkers.forEach(function(marker){
+      if (marker.temp) {
+        marker.setMap(null);
+      }
+    });
     //get place and pull out desired properties in new object
-    var place = autocomplete.getPlace(); 
+    var place = autocomplete.getPlace();
     $('#pac-input').val('');
     
     var myObj = { 
@@ -45,26 +54,41 @@ function initMap(theData) {
       phone: place.international_phone_number
     };
     
-    map.setCenter(myObj.loc);
-    initMapMarker(myObj, true);
+    var notinArray = true;
+    myPlaces.forEach(function(found) {
+      if (found.place_id == myObj.place_id) {
+        notinArray = false;
+        myMarkers.forEach(function(foundMark){
+          if(found.place_id == foundMark.place_id) {
+            map.setCenter(found.loc);
+            infowindow.setContent(found.content);
+            infowindow.open(map, foundMark);
+            return;
+          }
+        });
+        return;
+      }
+    });
+    
+    if (notinArray) {
+      map.setCenter(myObj.loc);
+      initMapMarker(myObj, true);
+    } 
+    
   });
 }
 
 function setMapOnPlaces(placeList, map) {
-  console.log("Setting Places on Map...")
-  
-  if(placeList != null) {
-    for (var i = 0; i < placeList.length; i++) {
-      var thePlace = placeList[i].doc;
-      initMapMarker(thePlace, false);  
-    }
+  console.log("Setting Places on Map...");
+  for (var i = 0; i < placeList.length; i++) {
+    initMapMarker(placeList[i], false);  
   }
 }
 
 function displayPlaces(thePlaces) {
   var display = '';
   for (var i = 0; i < thePlaces.length; i++) {
-    display += "<div>" + "<h1 id='name'>" + thePlaces[i].doc.name + "</h1>" + "<p>" + thePlaces[i].doc.phone + "</p>" + "<p>" + thePlaces[i].doc.address + "</p>" + "</div>";
+    display += "<div>" + "<h1 id='name'>" + thePlaces[i].name + "</h1>" + "<p>" + thePlaces[i].phone + "</p>" + "<p>" + thePlaces[i].address + "</p>" + "</div>";
   }
   console.log(display);
   $('main').html(display);
@@ -74,21 +98,24 @@ function displayPlaces(thePlaces) {
 function initMapMarker(myObj, temp){
 
   //create new marker for place, center and erase input
-  var marker =  new google.maps.Marker({
+  var marker = new google.maps.Marker({
     map: map,
     position: myObj.loc,
-    anchorPoint: new google.maps.Point(0, -29)
+    anchorPoint: new google.maps.Point(0, -29),
+    place_id: myObj.place_id, 
+    temp: temp
   });
   
+  myMarkers.push(marker);
+  
   //create and open infowindow for new marker
-  infowindow = new google.maps.InfoWindow();
-  var saveID = "save-" + myObj.id;
-  var deleteID = "delete-" + myObj.id;
+  var saveID = "save-" + myObj.place_id;
+  var deleteID = "delete-" + myObj.place_id;
 
   if (temp) {
-    myObj.content = '<div><strong>' + myObj.name + '</strong><br>' + myObj.address + '<br>' + "<input id='" + saveID + "' type='button' value='Save'>" +  "<input id='" + deleteID + "' type='button' value='Delete'>"
+    myObj.content = '<div><strong>' + myObj.name + '</strong><br>' + myObj.address + '<br>' + "<input id='" + saveID + "' type='button' value='Save'>" +  "<input id='" + deleteID + "' type='button' value='Delete'>";
   } else {
-    myObj.content = '<div><strong>' + myObj.name + '</strong><br>' + myObj.address + '<br>' + "<input id='" + deleteID + "' type='button' value='Delete'>"
+    myObj.content = '<div><strong>' + myObj.name + '</strong><br>' + myObj.address + '<br>' + "<input id='" + deleteID + "' type='button' value='Delete'>";
   }
   
   infowindow.setContent(myObj.content);
@@ -98,6 +125,25 @@ function initMapMarker(myObj, temp){
     infowindow.setContent(myObj.content);
     infowindow.open(map, this);
   });
+    
+  google.maps.event.addListener(infowindow, 'domready', function() {
+    $('#'+deleteID).click(function(){
+      console.log("Entered delete...");
+      
+      if (temp) {
+        marker.setMap(null);
+      } else {
+        deleteData(myObj, function() {
+          marker.setMap(null);
+        });
+        console.log(myObj);
+        console.log(myPlaces.indexOf(myObj));
+        myPlaces.splice(myPlaces.indexOf(myObj), 1);
+      }
+      
+  //      displayPlaces(myPlaces);
+    });
+  });
   
   if (temp) {
     $('#'+saveID).click(function(evt) {
@@ -106,32 +152,13 @@ function initMapMarker(myObj, temp){
       evt.preventDefault();
       evt.stopImmediatePropagation();
 
-      if(myPlaces.length > 0) {
-        myPlaces.push(myObj);
-        saveData(myObj);
-        console.log("First Place Added");
-      }
-
       if(myPlaces.indexOf(myObj) == -1) {
         myPlaces.push(myObj);
-        saveData(myObj);
-        console.log("New Place Added");
+        saveData(myObj, marker);
+        
+        console.log("Waiting for couch confitmation...");
       }
 //      displayPlaces(myPlaces);
     });
   }
-  
-  $('#'+deleteID).click(function(){
-    console.log("Entered delete...");
-    if (temp) {
-      marker.setMap(null);  
-    } else {
-      deleteData(myObj);
-    }
-//      displayPlaces(myPlaces);
-  });
-  
 }
-
-
-

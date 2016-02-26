@@ -33,6 +33,21 @@ app.get("/", function(req, res) {
   res.render('index.html');
 });
 
+
+//Data serving via path parameter
+app.get("/user/:userID", function(req,res){
+  console.log(req.params);
+  var theUserID = req.params.userID;
+  res.send("The user id is: " + theUserID);
+});
+
+//Data serving via query parameter
+app.get("/user", function(req,res){
+  console.log(req.query);
+  var theUserID = req.query.userID || "not sure";
+  res.send("The user id is: " + theUserID);
+});
+
 //Respond with data
 app.get("/data", function(req, res) {
   console.log('Making a db request for all entries');
