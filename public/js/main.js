@@ -61,7 +61,16 @@ function deleteData(obj, callback){
 $(document).ready(function(){
   getData(true, '');
   
-  $('a').click(function(){
-    getData(false, 'krishan')
-  });
+//  $('a').click(function(){
+//    getData(false, 'krishan')
+//  });
+  
+  $('#list').on('click', 'a', function (evt) {
+    var clickedId = evt.target.id;
+    myMarkers.forEach(function(obj){
+      if(obj.place_id == clickedId) {
+        google.maps.event.trigger(obj, 'click');
+      }
+    });
+   });
 });

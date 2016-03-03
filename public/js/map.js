@@ -17,7 +17,7 @@ function initMap(theData, edit) {
   //MAP PROPERTIES
   map = new google.maps.Map(document.getElementById('map'), {
     center: {lat: 24.4667, lng: 54.3667},
-    zoom: 12,
+    zoom: 13,
     mapTypeControl: false,
     streetViewControl: false
   });
@@ -37,7 +37,6 @@ function initMap(theData, edit) {
   console.log("Putting existing data on the map");
   setMapOnPlaces([], map, edit);
   setMapOnPlaces(myPlaces, map, edit);
- // displayPlaces(theData);
   
   if (edit) {
     console.log("Configuring map settings...");
@@ -59,6 +58,8 @@ function initMap(theData, edit) {
         place_id: place.place_id,
         phone: place.international_phone_number
       };
+      
+//      console.log(myObj.num);
 
   //Mildly better syntax for below   
   //    if(myPlaces.every(function(found){
@@ -95,17 +96,19 @@ function initMap(theData, edit) {
 function setMapOnPlaces(placeList, map, edit) {
   console.log("Setting Places on Map...");
   placeList.forEach(function(obj){
-    initMapMarker(obj, false, true);  
+    initMapMarker(obj, false, true);
   })
+  displayPlaces(placeList);
 }
 
-function displayPlaces(thePlaces) {
+function displayPlaces(placeList) {
   var display = '';
-  for (var i = 0; i < thePlaces.length; i++) {
-    display += "<div>" + "<h1 id='name'>" + thePlaces[i].name + "</h1>" + "<p>" + thePlaces[i].phone + "</p>" + "<p>" + thePlaces[i].address + "</p>" + "</div>";
-  }
+  placeList.forEach(function(obj){
+    display += "<div class='place-info'>" + "<a href='#' class = 'name' id='" + obj.place_id + "'>" + obj.name + "</a>" + "<p class = 'phone'>" + obj.phone + "</p>" + "<p class = 'address'>" + obj.address + "</p>" + "</div>";
+  });
+ 
   console.log(display);
-  $('main').html(display);
+  $('#list').html(display);
 }
 
 //set up a marker on the map, if temp = false then it is a marker from the database
@@ -118,6 +121,8 @@ function initMapMarker(myObj, temp, edit){
     anchorPoint: new google.maps.Point(0, -29),
     place_id: myObj.place_id, 
     temp: temp
+//    icon: 'http://chart.apis.google.com/chart?chst=d_map_pin_letter&chld=' + 'kk' + '|FF0000|000000'
+//    label: myObj.num
   });
   
   myMarkers.push(marker);
@@ -159,7 +164,7 @@ function initMapMarker(myObj, temp, edit){
         myPlaces.splice(myPlaces.indexOf(myObj), 1);
       }
       
-  //      displayPlaces(myPlaces);
+        displayPlaces(myPlaces);
     });
   });
   
@@ -176,7 +181,7 @@ function initMapMarker(myObj, temp, edit){
         
         console.log("Waiting for couch confirmation...");
       }
-//      displayPlaces(myPlaces);
+      displayPlaces(myPlaces);
     });
   }
 }
