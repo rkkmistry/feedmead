@@ -28,9 +28,20 @@
     box-shadow: $base-box-shadow;
     height: 7%;
     width: 100%;
-
+    
+    //ADDED
+    h2 {
+      margin-bottom: 0;
+      margin: 10px;
+    }
+    
     #nav {
       @include display(flex);
+      
+      //ADDED
+      li {
+        margin: 10px;
+      }
     }
   }
   
@@ -51,5 +62,19 @@
       overflow-y: scroll;
     }
 
+  }
+}
+
+//ADDED
+#list {
+  padding: 10px;
+  
+  .name {
+    font-size: 2 * $base-font-size;
+  }
+  
+  .address, .phone {
+    color: $base-font-color;
+    font-size: 0.7 * $base-font-size;
   }
 }
