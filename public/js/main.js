@@ -36,6 +36,23 @@ function saveData(obj, marker){
   });
 }
 
+function updateData(obj){
+	$.ajax({
+		url: '/update',
+		type: 'POST',
+		contentType: 'application/json',
+		data: JSON.stringify(obj),
+		error: function(resp){
+			console.log("Oh no...");
+			console.log(resp);
+		},
+		success: function(resp){
+			console.log('Updated!');
+			console.log(resp);
+		}
+	});
+}
+
 function deleteData(obj, callback){
   //Make sure you want to delete
   var conf = confirm("Are you sure you want to delete '" + obj.name + "' ?");
@@ -58,19 +75,42 @@ function deleteData(obj, callback){
   });
 }
 
+function selectMap(edit) {
+  $('#select-map').on('click', 'button', function (evt) {
+    evt.stopPropagation(); evt.preventDefault(); evt.stopImmediatePropagation();
+    user = $(this).text();
+    $("#select-map").hide();
+    $("#container").css("pointer-events", "auto");
+    $("#container").css("-webkit-filter", "none");
+    console.log(myPlaces);
+    setMapOnPlaces(myPlaces, map, edit, user);
+  });
+  
+}
+
 $(document).ready(function(){
-  getData(true, '');
+  var edit;
+  if (currentPage === 'editPage'){
+    edit = true;
+    var secret = prompt('Please enter password');
+    if (secret === 'krishan'){
+      console.log("Set to true");
+      getData(edit, '');
+      selectMap(edit);
+    } else {
+      alert("Go away.");
+    }
+  } else {
+    edit = false;
+    console.log("Set to false");
+    getData(edit, '');   
+    selectMap(edit);
+  }
   
-//  $('a').click(function(){
-//    getData(false, 'krishan')
-//  });
-  
-  $('#list').on('click', 'a', function (evt) {
-    var clickedId = evt.target.id;
-    myMarkers.forEach(function(obj){
-      if(obj.place_id == clickedId) {
-        google.maps.event.trigger(obj, 'click');
-      }
-    });
-   });
+  $("#nav a").click(function(){
+    console.log("click");
+//    setMapOnPlaces(myPlaces, map, edit, "none");
+    user = $(this).text();
+    setMapOnPlaces(myPlaces, map, edit, user);
+  });
 });

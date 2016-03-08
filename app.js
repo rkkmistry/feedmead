@@ -30,7 +30,12 @@ var cloudant_URL = "https://rkkmistry.cloudant.com/feedme";
 
 //Respond with the main view
 app.get("/", function(req, res) {
-  res.render('index.html');
+  res.render('index.html', {page: 'homePage'});
+});
+
+//Respond with the main view
+app.get("/edit", function(req, res) {
+  res.render('index.html', {page: 'editPage'});
 });
 
 //app.get("/user/:user", function(req, res) {
@@ -113,6 +118,33 @@ app.post("/save", function(req,res){
 	function (error, response, body){
 		if (response.statusCode == 201){
 			console.log("Saved!");
+			res.json(body);
+		}
+		else{
+			console.log("Uh oh...");
+			console.log("Error: " + res.statusCode);
+			res.send("Something went wrong...");
+		}
+	});
+});
+
+//UPDATE
+app.post("/update", function(req,res){
+	console.log("Updating an object");
+	var theObj = req.body;
+	//Send the data to the db
+	Request.post({
+		url: cloudant_URL,
+		auth: {
+			user: cloudant_KEY,
+			pass: cloudant_PASSWORD
+		},
+		json: true,
+		body: theObj
+	},
+	function (error, response, body){
+		if (response.statusCode == 201){
+			console.log("Updated!");
 			res.json(body);
 		}
 		else{

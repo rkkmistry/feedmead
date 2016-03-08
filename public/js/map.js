@@ -4,6 +4,12 @@ var map;
 var autocomplete;
 var myPlaces;
 var myMarkers = [];
+var myMaps = [];
+var user;
+
+$("#nav a").each(function(){
+  myMaps.push($(this).text());
+});
 
 //INITIALIZE MAP/AUTOCOMPLETE
 function initMap(theData, edit) {
@@ -24,7 +30,7 @@ function initMap(theData, edit) {
   
   if (edit) {
     //AUTOCOMPLETE PROPERTIES
-    $('body').prepend(" <input id='pac-input' class='controls' type='text' placeholder='Enter a location'> ");
+    $('body').prepend("<input id='pac-input' class='controls' type='text' placeholder='Enter a location'>");
     var input = /** @type {!HTMLInputElement} */(document.getElementById('pac-input'));
     map.controls[google.maps.ControlPosition.TOP_LEFT].push(input);
       var options = {
@@ -36,7 +42,7 @@ function initMap(theData, edit) {
 
   console.log("Putting existing data on the map");
   setMapOnPlaces([], map, edit);
-  setMapOnPlaces(myPlaces, map, edit);
+//  setMapOnPlaces(myPlaces, map, edit);
   
   if (edit) {
     console.log("Configuring map settings...");
@@ -56,10 +62,10 @@ function initMap(theData, edit) {
         loc: place.geometry.location,
         id: place.id,
         place_id: place.place_id,
-        phone: place.international_phone_number
+        phone: place.international_phone_number,
+        desc: "",
+        user: user
       };
-      
-//      console.log(myObj.num);
 
   //Mildly better syntax for below   
   //    if(myPlaces.every(function(found){
@@ -70,7 +76,7 @@ function initMap(theData, edit) {
 
       var notinArray = true;
       myPlaces.forEach(function(found) {
-        if (found.place_id == myObj.place_id) {
+        if (found.user == user && found.place_id == myObj.place_id) {
           notinArray = false;
           myMarkers.forEach(function(foundMark){
             if(found.place_id == foundMark.place_id) {
@@ -93,34 +99,133 @@ function initMap(theData, edit) {
   }
 }
 
-function setMapOnPlaces(placeList, map, edit) {
+function setMapOnPlaces(placeList, map, edit, person) {
+  myMarkers.forEach(function(obj){
+    obj.setMap(null);
+  });
   console.log("Setting Places on Map...");
+  var thisMap = [];
   placeList.forEach(function(obj){
-    initMapMarker(obj, false, true);
-  })
-  displayPlaces(placeList);
+    if (obj.user === user){
+      thisMap.push(obj);
+      initMapMarker(obj, false, edit);
+    }
+  });
+  displayPlaces(thisMap, edit);
 }
 
-function displayPlaces(placeList) {
+function displayPlaces(placeList, edit) {
   var display = '';
+  
   placeList.forEach(function(obj){
-    display += "<div class='place-info'>" + "<a href='#' class = 'name' id='" + obj.place_id + "'>" + obj.name + "</a>" + "<p class = 'phone'>" + obj.phone + "</p>" + "<p class = 'address'>" + obj.address + "</p>" + "</div>";
+    if (edit) {
+      if (obj.desc !== '') {
+        display += "<div class='place-info' id='" + obj.place_id + "'>" + 
+               "<a href='#' class='name'>" + obj.name + "</a>" + 
+               "<p class = 'phone'>" + obj.phone + "</p>" + 
+               "<p class = 'address'>" + obj.address + "</p>" + 
+               "<p class = 'desc'>" + obj.desc + "</p>" + 
+               "<input class='desc-input' type='text' value='" + obj.desc + "'>" +
+               "<a class='edit-button'>Edit</a>" +
+               "<a class='save-button'>Save</a>" +
+             "</div>";
+      } else {
+        display += "<div class='place-info' id='" + obj.place_id + "'>" + 
+             "<a href='#' class='name'>" + obj.name + "</a>" + 
+             "<p class = 'phone'>" + obj.phone + "</p>" + 
+             "<p class = 'address'>" + obj.address + "</p>" + 
+             "<p class = 'desc'>" + obj.desc + "</p>" + 
+             "<input class='desc-input' type='text' placeholder='Add a description...'>" +
+             "<a class='edit-button'>Edit</a>" +
+             "<a class='save-button'>Save</a>" +
+           "</div>";
+      }
+    } else {
+         display += "<div class='place-info' id='" + obj.place_id + "'>" + 
+           "<a href='#' class='name'>" + obj.name + "</a>" + 
+           "<p class = 'phone'>" + obj.phone + "</p>" + 
+           "<p class = 'address'>" + obj.address + "</p>" + 
+           "<p class = 'desc'>" + obj.desc + "</p>" + 
+         "</div>";
+    }
+    
+
   });
- 
+  
+  $('#list').on('click', '.name', function (evt) {
+    evt.stopPropagation(); evt.preventDefault(); evt.stopImmediatePropagation();
+    
+    var clickedID = $(this).closest("div").attr("id");
+    var hashID = "#" + clickedID;
+    
+    myMarkers.forEach(function(obj){
+      if(obj.place_id == clickedID) {
+        google.maps.event.trigger(obj, 'click');
+      }
+    });
+  });
+  
+  $('#list').on('click', '.edit-button', function (evt) {
+    evt.stopPropagation(); evt.preventDefault(); evt.stopImmediatePropagation();
+    
+    var clickedID = $(this).closest("div").attr("id");
+    var hashID = "#" + clickedID;
+    
+    $(this).hide();
+    $(hashID).children(".desc").hide();
+    
+    var curText = $(hashID).children(".desc").text();
+    
+    $(hashID).children(".desc-input[type='text']").show();
+    $(hashID).children(".desc-input").removeAttr('placeholder');
+    $(hashID).children(".desc-input").attr("value", curText);
+    $(hashID).children(".save-button").show();
+  });
+  
+  $('#list').on('click', '.save-button', function (evt) {
+    evt.stopPropagation(); evt.preventDefault(); evt.stopImmediatePropagation();
+    
+    var clickedID = $(this).closest("div").attr("id");
+    var hashID = "#" + clickedID;
+    
+    var newText = $(hashID).children(".desc-input").val();
+    $(this).hide();
+    $(hashID).children(".desc-input").hide();
+    $(hashID).children(".edit-button").show();
+    $(hashID).children(".desc").html(newText);
+    $(hashID).children(".desc").show();
+    
+    //this doesn't work - "every"?
+    myPlaces.forEach(function(obj){
+      if(obj.place_id == clickedID) {
+        console.log('found');
+        if (obj.desc !== newText) {
+          obj.desc = newText;
+          updateData(obj); 
+        }
+      }
+    });
+    
+  });
+
   console.log(display);
   $('#list').html(display);
+  $(".desc-input").hide();
+  $(".save-button").hide();
 }
 
 //set up a marker on the map, if temp = false then it is a marker from the database
 function initMapMarker(myObj, temp, edit){
-
+  var curMap = [];
+    
   //create new marker for place, center and erase input
   var marker = new google.maps.Marker({
     map: map,
     position: myObj.loc,
     anchorPoint: new google.maps.Point(0, -29),
     place_id: myObj.place_id, 
-    temp: temp
+    temp: temp,
+    user: user
 //    icon: 'http://chart.apis.google.com/chart?chst=d_map_pin_letter&chld=' + 'kk' + '|FF0000|000000'
 //    label: myObj.num
   });
@@ -131,14 +236,16 @@ function initMapMarker(myObj, temp, edit){
     //create and open infowindow for new marker
     var saveID = "save-" + myObj.place_id;
     var deleteID = "delete-" + myObj.place_id;
+    var inputID = "input-" + myObj.place_id;
 
     if (temp) {
-      myObj.content = '<div><strong>' + myObj.name + '</strong><br>' + myObj.address + '<br>' + "<input id='" + saveID + "' type='button' value='Save'>" +  "<input id='" + deleteID + "' type='button' value='Delete'>";
+      myObj.content = '<div>' + myObj.name + '<br>' + myObj.address + '<br>' + "<input id='" + saveID + "' type='button' value='Save'>" +  "<input id='" + deleteID + "' type='button' value='Delete'>" + "<input id='" + inputID + "' type='text' value='Add a description...'></div>" ;
+      
     } else {
-      myObj.content = '<div><strong>' + myObj.name + '</strong><br>' + myObj.address + '<br>' + "<input id='" + deleteID + "' type='button' value='Delete'>";
+      myObj.content = '<div>' + myObj.name + '<br>' + myObj.address + '<br>' + "<input id='" + deleteID + "' type='button' value='Delete'></div>";
     }
   } else {
-     myObj.content = '<div><strong>' + myObj.name + '</strong><br>' + myObj.address;
+     myObj.content = '<div>' + myObj.name + '<br>' + myObj.address + '</div>';
   }
   
   infowindow.setContent(myObj.content);
@@ -151,6 +258,7 @@ function initMapMarker(myObj, temp, edit){
     
   google.maps.event.addListener(infowindow, 'domready', function() {
     $('#'+deleteID).click(function(){
+      curMap = [];
       console.log("Entered delete...");
       
       if (temp) {
@@ -164,24 +272,39 @@ function initMapMarker(myObj, temp, edit){
         myPlaces.splice(myPlaces.indexOf(myObj), 1);
       }
       
-        displayPlaces(myPlaces);
+      myPlaces.forEach(function(obj){
+        if (obj.user === user){
+          curMap.push(obj);
+        }
+      });
+      
+      displayPlaces(curMap, true);
     });
   });
   
   if (temp) {
     $('#'+saveID).click(function(evt) {
+      curMap = [];
       console.log("Clicked Save...");
       evt.stopPropagation();
       evt.preventDefault();
       evt.stopImmediatePropagation();
 
       if(myPlaces.indexOf(myObj) == -1) {
+        myObj.desc = $("#"+inputID).val();
         myPlaces.push(myObj);
         saveData(myObj, marker);
+        console.log(myObj.desc);
         
         console.log("Waiting for couch confirmation...");
       }
-      displayPlaces(myPlaces);
+      
+      myPlaces.forEach(function(obj){
+        if (obj.user === user){
+          curMap.push(obj);
+        }
+      });
+      displayPlaces(curMap, true);
     });
   }
 }

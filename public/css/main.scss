@@ -1,0 +1,55 @@
+@import "bourbon/bourbon";
+@import "base/base";
+
+#select-map {
+  position: absolute;
+  z-index: 1;
+  top: 35%;
+  margin-left: auto;
+  margin-right: auto;
+  left: 0;
+  right: 0;
+  border-radius: $base-border-radius;
+  text-align: center;
+}
+
+#container {
+  width:100%;
+  height:100%;
+  position: absolute;
+//  background-color: rgb(247, 247, 247);
+  pointer-events: none;
+  @include filter(blur(5px));
+  
+  header {
+    background-color: $base-background-color;
+    @include display(flex);
+    @include align-items(center);
+    box-shadow: $base-box-shadow;
+    height: 7%;
+    width: 100%;
+
+    #nav {
+      @include display(flex);
+    }
+  }
+  
+  main {
+    width: 100%;
+    height: 93%;
+    
+    #map {
+      float: left;
+      width: 60%;
+      height: 100%;
+    }
+
+    #list {
+      width: 40%;
+      height: 100%;
+      overflow: hidden; 
+      overflow-y: scroll;
+    }
+
+  }
+}
