@@ -1,4 +1,16 @@
-function getData(edit, user) {
+function selectMap(edit) {
+  $('#select-map').on('click', 'button', function (evt) {
+    evt.stopPropagation(); evt.preventDefault(); evt.stopImmediatePropagation();
+    user = $(this).text();
+    $("#select-map").hide();
+    $("#container").css("pointer-events", "auto");
+    $("#container").css("-webkit-filter", "none");
+    console.log(myPlaces);
+    setMapOnPlaces(myPlaces, map, edit, user);
+  });
+}
+
+function getData(edit, user, callback) {
   $.ajax({
       url: '/data/' + user,
       type: 'GET',
@@ -9,7 +21,12 @@ function getData(edit, user) {
       },
       success: function(data) {
         console.log("We have data");
+        callback(edit);
         initMap(data, edit);
+        $("#loading").hide();
+        $("#container").show();
+        $("#select-map").show();
+        
       }
     });
 }
@@ -75,41 +92,30 @@ function deleteData(obj, callback){
   });
 }
 
-function selectMap(edit) {
-  $('#select-map').on('click', 'button', function (evt) {
-    evt.stopPropagation(); evt.preventDefault(); evt.stopImmediatePropagation();
-    user = $(this).text();
-    $("#select-map").hide();
-    $("#container").css("pointer-events", "auto");
-    $("#container").css("-webkit-filter", "none");
-    console.log(myPlaces);
-    setMapOnPlaces(myPlaces, map, edit, user);
-  });
-  
-}
-
 $(document).ready(function(){
   var edit;
+  $("#select-map").hide();
+  $("#container").hide();
+  
   if (currentPage === 'editPage'){
     edit = true;
     var secret = prompt('Please enter password');
     if (secret === 'krishan'){
       console.log("Set to true");
-      getData(edit, '');
-      selectMap(edit);
+      getData(edit, '', selectMap);
     } else {
+//      $(body).html("<h2>FUCK YOU</h2>");
       alert("Go away.");
+      
     }
   } else {
     edit = false;
     console.log("Set to false");
-    getData(edit, '');   
-    selectMap(edit);
+    getData(edit, '', selectMap);
   }
   
   $("#nav a").click(function(){
     console.log("click");
-//    setMapOnPlaces(myPlaces, map, edit, "none");
     user = $(this).text();
     setMapOnPlaces(myPlaces, map, edit, user);
   });

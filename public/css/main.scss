@@ -1,6 +1,12 @@
 @import "bourbon/bourbon";
 @import "base/base";
 
+#loading {
+  position: absolute;
+  top: 50%;
+  left: 45%;
+}
+
 #select-map {
   position: absolute;
   z-index: 1;
@@ -29,19 +35,8 @@
     height: 7%;
     width: 100%;
     
-    //ADDED
-    h2 {
-      margin-bottom: 0;
-      margin: 10px;
-    }
-    
     #nav {
       @include display(flex);
-      
-      //ADDED
-      li {
-        margin: 10px;
-      }
     }
   }
   
@@ -65,16 +60,16 @@
   }
 }
 
-//ADDED
-#list {
-  padding: 10px;
-  
-  .name {
-    font-size: 2 * $base-font-size;
-  }
-  
-  .address, .phone {
-    color: $base-font-color;
-    font-size: 0.7 * $base-font-size;
-  }
-}
+////ADDED
+//#list {
+//  padding: 10px;
+//  
+//  .name {
+//    font-size: 2 * $base-font-size;
+//  }
+//  
+//  .address, .phone {
+//    color: $base-font-color;
+//    font-size: 0.7 * $base-font-size;
+//  }
+//}

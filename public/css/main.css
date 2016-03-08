@@ -173,7 +173,8 @@ p {
 a {
   color: #1565c0;
   text-decoration: none;
-  transition: color 150ms ease; }
+  transition: color 150ms ease;
+  cursor: pointer; }
   a:active, a:focus, a:hover {
     color: #104c90; }
 
@@ -220,6 +221,11 @@ hr {
   font-size: 13px;
   font-weight: 300; }
 
+#loading {
+  position: absolute;
+  top: 50%;
+  left: 45%; }
+
 #select-map {
   position: absolute;
   z-index: 1;
@@ -259,9 +265,6 @@ hr {
     box-shadow: 0 2px 3px #999;
     height: 7%;
     width: 100%; }
-    #container header h2 {
-      margin-bottom: 0;
-      margin: 10px; }
     #container header #nav {
       display: -webkit-box;
       display: -moz-box;
@@ -270,8 +273,6 @@ hr {
       display: -moz-flex;
       display: -ms-flexbox;
       display: flex; }
-      #container header #nav li {
-        margin: 10px; }
   #container main {
     width: 100%;
     height: 93%; }
@@ -284,13 +285,5 @@ hr {
       height: 100%;
       overflow: hidden;
       overflow-y: scroll; }
-
-#list {
-  padding: 10px; }
-  #list .name {
-    font-size: 2em; }
-  #list .address, #list .phone {
-    color: #333;
-    font-size: 0.7em; }
 
 /*# sourceMappingURL=main.css.map */
