@@ -35,8 +35,17 @@
     height: 7%;
     width: 100%;
     
+    #logo {
+      padding: 10px;
+      margin: 0;
+    }
+    
     #nav {
       @include display(flex);
+      
+      li {
+        padding: 10px;
+      }
     }
   }
   
@@ -51,25 +60,25 @@
     }
 
     #list {
+      padding: 20px;
       width: 40%;
       height: 100%;
       overflow: hidden; 
       overflow-y: scroll;
+      
+      .place-info {
+        margin: 0 0 30px;
+        
+        .name {
+          &:active,
+          &:focus,
+          &:hover {
+            color: tint($base-font-color, 50%);
+            cursor: pointer;
+          }
+        }
+      }
     }
 
   }
 }
-
-////ADDED
-//#list {
-//  padding: 10px;
-//  
-//  .name {
-//    font-size: 2 * $base-font-size;
-//  }
-//  
-//  .address, .phone {
-//    color: $base-font-color;
-//    font-size: 0.7 * $base-font-size;
-//  }
-//}

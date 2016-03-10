@@ -121,9 +121,9 @@ function displayPlaces(placeList, edit) {
     if (edit) {
       if (obj.desc !== '') {
         display += "<div class='place-info' id='" + obj.place_id + "'>" + 
-               "<a href='#' class='name'>" + obj.name + "</a>" + 
-               "<p class = 'phone'>" + obj.phone + "</p>" + 
-               "<p class = 'address'>" + obj.address + "</p>" + 
+               "<h2 href='#' class='name'>" + obj.name + "</h2>" + 
+               "<h3 class = 'phone'>" + obj.phone + "</h3>" + 
+               "<h3 class = 'address'>" + obj.address + "</h3>" + 
                "<p class = 'desc'>" + obj.desc + "</p>" + 
                "<input class='desc-input' type='text' value='" + obj.desc + "'>" +
                "<a class='edit-button'>Edit</a>" +
@@ -131,9 +131,9 @@ function displayPlaces(placeList, edit) {
              "</div>";
       } else {
         display += "<div class='place-info' id='" + obj.place_id + "'>" + 
-             "<a href='#' class='name'>" + obj.name + "</a>" + 
-             "<p class = 'phone'>" + obj.phone + "</p>" + 
-             "<p class = 'address'>" + obj.address + "</p>" + 
+             "<h2 href='#' class='name'>" + obj.name + "</h2>" + 
+             "<h3 class = 'phone'>" + obj.phone + "</h3>" + 
+             "<h3 class = 'address'>" + obj.address + "</h3>" + 
              "<p class = 'desc'>" + obj.desc + "</p>" + 
              "<input class='desc-input' type='text' placeholder='Add a description...'>" +
              "<a class='edit-button'>Edit</a>" +
@@ -142,9 +142,9 @@ function displayPlaces(placeList, edit) {
       }
     } else {
          display += "<div class='place-info' id='" + obj.place_id + "'>" + 
-           "<a href='#' class='name'>" + obj.name + "</a>" + 
-           "<p class = 'phone'>" + obj.phone + "</p>" + 
-           "<p class = 'address'>" + obj.address + "</p>" + 
+           "<h2 href='#' class='name'>" + obj.name + "</h2>" + 
+           "<h3 class = 'phone'>" + obj.phone + "</h3>" + 
+           "<h3 class = 'address'>" + obj.address + "</h3>" + 
            "<p class = 'desc'>" + obj.desc + "</p>" + 
          "</div>";
     }

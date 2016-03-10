@@ -104,9 +104,8 @@ $(document).ready(function(){
       console.log("Set to true");
       getData(edit, '', selectMap);
     } else {
-//      $(body).html("<h2>FUCK YOU</h2>");
+//      $('body').html("<h2 style="po">FUCK YOU</h2>");
       alert("Go away.");
-      
     }
   } else {
     edit = false;

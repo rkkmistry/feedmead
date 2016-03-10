@@ -6,20 +6,34 @@ body {
   margin: 0;
 }
 
-h1,
-h2,
-h3,
-h4,
-h5,
-h6 {
+h1, h2, h3, h4, h5, h6 {
   font-family: $heading-font-family;
-  font-size: modular-scale(1);
+  font-size: $base-font-size;
   line-height: $heading-line-height;
+  font-weight: 400;
   margin: 0 0 $small-spacing;
+}
+
+//use for biggest headers
+h1 {
+  font-size: modular-scale(4);
+}
+
+//use for titles of places
+h2 {
+  font-size: modular-scale(3);
+}
+
+//use for details
+h3 {
+  font-size: modular-scale(-2);
+  color: $medium-gray;
 }
 
 p {
   margin: 0 0 $small-spacing;
+  padding-top: $small-spacing;
+  line-height: $heading-line-height;
 }
 
 a {
