@@ -11,7 +11,7 @@ h1, h2, h3, h4, h5, h6 {
   font-size: $base-font-size;
   line-height: $heading-line-height;
   font-weight: 400;
-  margin: 0 0 $small-spacing;
+  margin: 0 0 $header-spacing;
 }
 
 //use for biggest headers
@@ -26,14 +26,11 @@ h2 {
 
 //use for details
 h3 {
-  font-size: modular-scale(-2);
-  color: $medium-gray;
+  font-size: modular-scale(-1);
 }
 
 p {
   margin: 0 0 $small-spacing;
-  padding-top: $small-spacing;
-  line-height: $heading-line-height;
 }
 
 a {

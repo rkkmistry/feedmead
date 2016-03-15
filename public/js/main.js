@@ -5,7 +5,6 @@ function selectMap(edit) {
     $("#select-map").hide();
     $("#container").css("pointer-events", "auto");
     $("#container").css("-webkit-filter", "none");
-    console.log(myPlaces);
     setMapOnPlaces(myPlaces, map, edit, user);
   });
 }
@@ -47,8 +46,8 @@ function saveData(obj, marker){
       obj._id = resp.id;
       obj._rev = resp.rev;
       console.log("Making the official marker");
-      initMapMarker(obj, false, true); 
       marker.setMap(null);
+      initMapMarker(obj, false, true); 
     }
   });
 }
@@ -70,11 +69,14 @@ function updateData(obj){
 	});
 }
 
-function deleteData(obj, callback){
+function deleteData(obj, marker, edit){
   //Make sure you want to delete
   var conf = confirm("Are you sure you want to delete '" + obj.name + "' ?");
   if (!conf) return;
-  callback();
+  
+  console.log(marker);
+  marker.setMap(null);
+  
   //Proceed if confirm is true
   $.ajax({
       url: '/delete',
@@ -88,6 +90,7 @@ function deleteData(obj, callback){
       success: function(resp){
         console.log('Deleted!');
         console.log(resp);
+//        setMapOnPlaces(myPlaces, map, edit, user);
       }
   });
 }
@@ -98,24 +101,24 @@ $(document).ready(function(){
   $("#container").hide();
   
   if (currentPage === 'editPage'){
+    console.log("Edit Mode");
     edit = true;
-    var secret = prompt('Please enter password');
-    if (secret === 'krishan'){
-      console.log("Set to true");
+//    var secret = prompt('Please enter password');
+//    if (secret === 'krishan'){
       getData(edit, '', selectMap);
-    } else {
-//      $('body').html("<h2 style="po">FUCK YOU</h2>");
-      alert("Go away.");
-    }
+//      } else {
+//        alert("Go away.");
+//      }
   } else {
     edit = false;
-    console.log("Set to false");
+    console.log("Display Mode");
     getData(edit, '', selectMap);
   }
   
   $("#nav a").click(function(){
-    console.log("click");
     user = $(this).text();
     setMapOnPlaces(myPlaces, map, edit, user);
+    $("#nav a").css("color", "red");
+    $(this).css("color", 'black');
   });
 });

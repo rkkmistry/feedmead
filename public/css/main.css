@@ -1,6 +1,12 @@
+html {
+  box-sizing: border-box; }
+
+*, *::after, *::before {
+  box-sizing: inherit; }
+
 button, input[type="button"], input[type="reset"], input[type="submit"] {
   appearance: none;
-  background-color: #1565c0;
+  background-color: #c0392b;
   border: 0;
   border-radius: 3px;
   color: #fff;
@@ -11,20 +17,20 @@ button, input[type="button"], input[type="reset"], input[type="submit"] {
   -webkit-font-smoothing: antialiased;
   font-weight: 600;
   line-height: 1;
-  padding: 0.5em 1em;
+  padding: 0.6em 1.2em;
   text-decoration: none;
   transition: background-color 150ms ease;
   user-select: none;
   vertical-align: middle;
   white-space: nowrap; }
   button:hover, button:focus, input[type="button"]:hover, input[type="button"]:focus, input[type="reset"]:hover, input[type="reset"]:focus, input[type="submit"]:hover, input[type="submit"]:focus {
-    background-color: #11519a;
+    background-color: #9a2e22;
     color: #fff; }
   button:disabled, input[type="button"]:disabled, input[type="reset"]:disabled, input[type="submit"]:disabled {
     cursor: not-allowed;
     opacity: 0.5; }
     button:disabled:hover, input[type="button"]:disabled:hover, input[type="reset"]:disabled:hover, input[type="submit"]:disabled:hover {
-      background-color: #1565c0; }
+      background-color: #c0392b; }
 
 fieldset {
   background-color: transparent;
@@ -34,13 +40,13 @@ fieldset {
 
 legend {
   font-weight: 600;
-  margin-bottom: 0.25em;
+  margin-bottom: 0.3em;
   padding: 0; }
 
 label {
   display: block;
   font-weight: 600;
-  margin-bottom: 0.25em; }
+  margin-bottom: 0.3em; }
 
 input,
 select,
@@ -56,8 +62,8 @@ select[multiple] {
   border-radius: 3px;
   box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.06);
   box-sizing: border-box;
-  margin-bottom: 0.5em;
-  padding: 0.33333em;
+  margin-bottom: 0.6em;
+  padding: 0.4em;
   transition: border-color 150ms ease;
   width: 100%; }
   input[type="color"]:hover, input[type="date"]:hover, input[type="datetime"]:hover, input[type="datetime-local"]:hover, input[type="email"]:hover, input[type="month"]:hover, input[type="number"]:hover, input[type="password"]:hover, input[type="search"]:hover, input[type="tel"]:hover, input[type="text"]:hover, input[type="time"]:hover, input[type="url"]:hover, input[type="week"]:hover, input:not([type]):hover, textarea:hover,
@@ -65,8 +71,8 @@ select[multiple] {
     border-color: #b1b1b1; }
   input[type="color"]:focus, input[type="date"]:focus, input[type="datetime"]:focus, input[type="datetime-local"]:focus, input[type="email"]:focus, input[type="month"]:focus, input[type="number"]:focus, input[type="password"]:focus, input[type="search"]:focus, input[type="tel"]:focus, input[type="text"]:focus, input[type="time"]:focus, input[type="url"]:focus, input[type="week"]:focus, input:not([type]):focus, textarea:focus,
   select[multiple]:focus {
-    border-color: #1565c0;
-    box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.06), 0 0 5px rgba(18, 89, 169, 0.7);
+    border-color: #c0392b;
+    box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.06), 0 0 5px rgba(171, 51, 38, 0.7);
     outline: none; }
   input[type="color"]:disabled, input[type="date"]:disabled, input[type="datetime"]:disabled, input[type="datetime-local"]:disabled, input[type="email"]:disabled, input[type="month"]:disabled, input[type="number"]:disabled, input[type="password"]:disabled, input[type="search"]:disabled, input[type="tel"]:disabled, input[type="text"]:disabled, input[type="time"]:disabled, input[type="url"]:disabled, input[type="week"]:disabled, input:not([type]):disabled, textarea:disabled,
   select[multiple]:disabled {
@@ -85,14 +91,14 @@ textarea {
 [type="checkbox"],
 [type="radio"] {
   display: inline;
-  margin-right: 0.25em; }
+  margin-right: 0.3em; }
 
 [type="file"] {
-  margin-bottom: 0.5em;
+  margin-bottom: 0.6em;
   width: 100%; }
 
 select {
-  margin-bottom: 0.5em;
+  margin-bottom: 0.6em;
   max-width: 100%;
   width: auto; }
 
@@ -130,19 +136,19 @@ picture {
 
 table {
   border-collapse: collapse;
-  margin: 0.5em 0;
+  margin: 0.6em 0;
   table-layout: fixed;
   width: 100%; }
 
 th {
   border-bottom: 1px solid #a6a6a6;
   font-weight: 600;
-  padding: 0.5em 0;
+  padding: 0.6em 0;
   text-align: left; }
 
 td {
   border-bottom: 1px solid #ddd;
-  padding: 0.5em 0; }
+  padding: 0.6em 0; }
 
 tr,
 td,
@@ -153,7 +159,7 @@ body {
   color: #333;
   font-family: "Open Sans";
   font-size: 1em;
-  line-height: 1;
+  line-height: 1.2;
   margin: 0; }
 
 h1, h2, h3, h4, h5, h6 {
@@ -161,7 +167,7 @@ h1, h2, h3, h4, h5, h6 {
   font-size: 1em;
   line-height: 1.2;
   font-weight: 400;
-  margin: 0 0 0.5em; }
+  margin: 0 0 0.6em; }
 
 h1 {
   font-size: 2.0736em; }
@@ -170,28 +176,25 @@ h2 {
   font-size: 1.728em; }
 
 h3 {
-  font-size: 0.69444em;
-  color: #888; }
+  font-size: 0.83333em; }
 
 p {
-  margin: 0 0 0.5em;
-  padding-top: 0.5em;
-  line-height: 1.2; }
+  margin: 0 0 0.6em; }
 
 a {
-  color: #1565c0;
+  color: #c0392b;
   text-decoration: none;
   transition: color 150ms ease;
   cursor: pointer; }
   a:active, a:focus, a:hover {
-    color: #104c90; }
+    color: #902b20; }
 
 hr {
   border-bottom: 1px solid #ddd;
   border-left: 0;
   border-right: 0;
   border-top: 0;
-  margin: 1em 0; }
+  margin: 1.2em 0; }
 
 .controls {
   margin-top: 10px;
@@ -298,11 +301,29 @@ hr {
       width: 40%;
       height: 100%;
       overflow: hidden;
-      overflow-y: scroll; }
+      overflow-y: scroll;
+      background-color: #fff; }
       #container main #list .place-info {
         margin: 0 0 30px; }
-        #container main #list .place-info .name:active, #container main #list .place-info .name:focus, #container main #list .place-info .name:hover {
-          color: #999999;
-          cursor: pointer; }
+        #container main #list .place-info .name, #container main #list .place-info .address, #container main #list .place-info .phone {
+          margin: 0 0 0.1em; }
+        #container main #list .place-info .name {
+          color: #c0392b;
+          font-weight: 600; }
+          #container main #list .place-info .name:active, #container main #list .place-info .name:focus, #container main #list .place-info .name:hover {
+            color: #e09c95;
+            cursor: pointer; }
+        #container main #list .place-info .details {
+          margin: 0 0 10px;
+          color: #333; }
+        #container main #list .place-info .desc {
+          color: #888;
+          font-weight: 400; }
+
+.window-text {
+  overflow: hidden;
+  text-align: center; }
+  .window-text h4 {
+    font-weight: 600; }
 
 /*# sourceMappingURL=main.css.map */
