@@ -83,7 +83,9 @@ select[multiple] {
       border: 1px solid #f4f4f4; }
 
 textarea {
-  resize: vertical; }
+  resize: vertical;
+  outline: none;
+  overflow: auto; }
 
 [type="search"] {
   appearance: none; }
@@ -265,11 +267,6 @@ hr {
   40% {
     -webkit-transform: scale(1);
     transform: scale(1); } }
-.small-text, #container main #list .place-info .details, .window-text .window-address, .window-text .list-button {
-  color: #878787;
-  text-transform: uppercase;
-  font-size: 0.78261em; }
-
 #select-map {
   position: absolute;
   z-index: 1;
@@ -376,7 +373,14 @@ hr {
       #container main #list .place-info {
         margin: 0 0 30px; }
         #container main #list .place-info .details {
+          color: #191919;
+          text-transform: uppercase;
+          font-size: 0.78261em;
           margin: 0 0 15px; }
+          #container main #list .place-info .details .control {
+            margin-bottom: 10px; }
+            #container main #list .place-info .details .control a:not(:first-child) {
+              padding-left: 15px; }
 
 .window-text {
   font-family: "Open Sans";
@@ -387,9 +391,14 @@ hr {
   max-width: 200px; }
   .window-text .window-name {
     font-size: 1.36879em; }
-  .window-text .window-address, .window-text .list-button {
+  .window-text .window-address {
+    color: #191919;
+    text-transform: uppercase;
     font-size: 0.9em; }
-  .window-text .list-button {
-    color: #0071c3; }
+  .window-text .list-button, .window-text .window-save, .window-text .window-delete {
+    color: #0071c3;
+    text-transform: uppercase;
+    font-size: 0.9em;
+    padding: 10px; }
 
 /*# sourceMappingURL=main.css.map */

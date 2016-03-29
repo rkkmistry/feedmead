@@ -149,13 +149,13 @@ function initMapMarker(myObj, temp, edit) {
   
   var saveID, deleteID, inputID;
   if (marker.temp) {
-    saveID = "save-" + myObj.place_id + "-temp-" + marker.user;
-    deleteID = "delete-" + myObj.place_id +  "-temp-"  + marker.user;
-    inputID = "input-" + myObj.place_id +  "-temp-" + marker.user;
+    saveID = "save-" + myObj.place_id + "-temp-" + marker.user.replace(/ /g,'');
+    deleteID = "delete-" + myObj.place_id +  "-temp-"  + marker.user.replace(/ /g,'');
+    inputID = "input-" + myObj.place_id +  "-temp-" + marker.user.replace(/ /g,'');
   } else {
-    saveID = "save-" + myObj.place_id + "-" + marker.user;
-    deleteID = "delete-" + myObj.place_id  + "-" + marker.user;
-    inputID = "input-" + myObj.place_id  + "-" + marker.user;
+    saveID = "save-" + myObj.place_id + "-" + marker.user.replace(/ /g,'');
+    deleteID = "delete-" + myObj.place_id  + "-" + marker.user.replace(/ /g,'');
+    inputID = "input-" + myObj.place_id  + "-" + marker.user.replace(/ /g,'');
   }
 
   myObj.content = makeinfoHTML(myObj, temp, edit, saveID, deleteID, inputID);
@@ -195,7 +195,7 @@ function initMapMarker(myObj, temp, edit) {
     });
     displayPlacesList(curMap, true);
   });
- 
+  
   $('.window-text').on('click', '#'+saveID,  function(evt) {
     evt.stopPropagation(); evt.preventDefault(); evt.stopImmediatePropagation();
     console.log("Saving marker...");
@@ -230,7 +230,7 @@ function displayPlacesList(placeList, edit) {
   $('#list').on('click', '.map-button', function (evt) {
     evt.stopPropagation(); evt.preventDefault(); evt.stopImmediatePropagation();
     
-    var clickedID = $(this).parent().parent().attr("id");
+    var clickedID = $(this).parent().parent().parent().attr("id");
     var hashID = "#" + clickedID;
     
     myMarkers.forEach(function(obj){
@@ -243,7 +243,9 @@ function displayPlacesList(placeList, edit) {
   $('#list').on('click', '.edit-button', function (evt) {
     evt.stopPropagation(); evt.preventDefault(); evt.stopImmediatePropagation();
     
-    var clickedID = $(this).parent().paernt().attr("id");
+    console.log("clicked");
+    
+    var clickedID = $(this).closest(".place-info").attr("id");
     var hashID = "#" + clickedID;
     
     $(this).hide();
@@ -251,24 +253,24 @@ function displayPlacesList(placeList, edit) {
     
     var curText = $(hashID).children(".desc").text();
     
-    $(hashID).children(".desc-input[type='text']").show();
-    $(hashID).children(".desc-input").removeAttr('placeholder');
-    $(hashID).children(".desc-input").attr("value", curText);
-    $(hashID).children(".save-button").show();
+    $(hashID).find(".desc-input").show();
+    $(hashID).find(".desc-input").removeAttr('placeholder');
+    $(hashID).find(".desc-input").text(curText);
+    $(hashID).find(".save-button").show();
   });
   
   $('#list').on('click', '.save-button', function (evt) {
     evt.stopPropagation(); evt.preventDefault(); evt.stopImmediatePropagation();
     
-    var clickedID = $(this).parent().parent().attr("id");
+    var clickedID = $(this).closest(".place-info").attr("id");
     var hashID = "#" + clickedID;
     
     var newText = $(hashID).children(".desc-input").val();
     $(this).hide();
-    $(hashID).children(".desc-input").hide();
-    $(hashID).children(".edit-button").show();
-    $(hashID).children(".desc").html(newText);
-    $(hashID).children(".desc").show();
+    $(hashID).find(".desc-input").hide();
+    $(hashID).find(".edit-button").show();
+    $(hashID).find(".desc").html(newText);
+    $(hashID).find(".desc").show();
     
     //this doesn't work - "every"?
     myPlaces.forEach(function(obj){
@@ -300,30 +302,30 @@ function makeListHTML(obj, edit) {
   listText+= "<p class = 'desc'>" + obj.desc + "</p>";
   
   if (obj.desc === '') {
-    listText+= "<input class='desc-input' type='text' placeholder='Add a description...'>";
+    listText+= "<textarea rows='10' cols='10' class='desc-input' placeholder='Add a description...'></textarea>";
   } else {
-    listText+= "<input class='desc-input' type='text' value='" + obj.desc + "'>";
+    listText+= "<textarea rows='10' cols='10' class='desc-input'>" + obj.desc + "</textarea>";
+  }
+  
+  listText+= "<div class ='details'>" +
+               "<div class='control'>" +
+                  "<a class='map-button'>Show on Map</a>";
+  
+  if (edit) {
+    listText+=    "<a class='edit-button'>Edit</a>" +
+                  "<a class='save-button'>Save</a>" +
+               "</div>";
   }
   
   if (obj.phone == null) {
-    listText += "<div class ='details'>" +
-                  "<h3 class = 'address'>" + obj.address + "</h3>" + 
-                  "<a class='map-button'>Show on Map</a>" + 
-                "</div>";
+    listText += "<h3 class = 'address'>" + obj.address + "</h3>";                
   } else {
-    listText += "<div class ='details'>" +
-                  "<h3 class = 'address'>" + obj.address + "</h3>" + 
-                  "<h3 class = 'phone'>" + obj.phone + "</h3>" + 
-                  "<a class='map-button'>Show on Map</a>" + 
-                "</div>";
-  }
-  
-  if (edit) {
-    listText+= "<a class='edit-button'>Edit</a>" +
-              "<a class='save-button'>Save</a>";
+    listText += 
+                "<h3 class = 'address'>" + obj.address + "</h3>" + 
+                "<h3 class = 'phone'>" + obj.phone + "</h3>";
   }
              
-  listText+= "</div>" + "<hr>";
+  listText+= "</div>" + "</div>" + "<hr>";
   
   return listText;
 }
@@ -339,14 +341,19 @@ function makeinfoHTML(obj, temp, edit, theSave, theDelete, theInput) {
                   "<h3 class='window-address'>" + obj.address + "</h3>";
   
   if (temp) {
-    windowText+= "<input id='" + theSave + "' type='button' value='Save'>" +  
-                 "<input id='" + theDelete + "' type='button' value='Delete'>" + 
-                 "<input id='" + theInput + "' type='text' value='Add a description...'>";
+    windowText+= "<input id='" + theInput + "' type='text' value='Add a description...'>" +
+                 "<a class='window-save' id='" + theSave + "'>Save</a>" +  
+                 "<a class='window-delete' id='" + theDelete + "'>Delete</a>";
+                 
   } else if (edit) {
-    windowText+= "<input id='" + theDelete + "' type='button' value='Delete'>";
+    windowText+= "<a class='window-delete' id='" + theDelete + "'>Delete</a>";
   }
-    
-  windowText+= "<a class='list-button' href='#" + obj.place_id + "'>Show on List<a> </div>";
+  
+  if (!temp) {
+    windowText+= "<a class='list-button' href='#" + obj.place_id + "'>Show on List</a>";  
+  }
+  
+  windowText+= "</div>";
   
   return windowText;
 }
