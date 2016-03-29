@@ -4,12 +4,11 @@ var map;
 var autocomplete;
 var myPlaces;
 var myMarkers = [];
-var myMaps = [];
 var user;
-
-$("#nav a").each(function() {
-  myMaps.push($(this).text());
-});
+var actionColor = 'rgb(253, 197, 14)';
+var textColor = 'rgb(38, 38, 38)';
+var boxShadow = 'inset 0 1px 2px #aaa';
+var lightGray = 'rgb(244, 244, 244)';
 
 //INITIALIZE MAP/AUTOCOMPLETE
 function initMap(theData, edit) {
@@ -104,6 +103,17 @@ function initMap(theData, edit) {
 function setMapOnPlaces(placeList, map, edit, user) {
   console.log("The User is: " + user);
   
+  $("#nav li").each(function() {  
+    if($(this).text() == user) {
+      $(this).css('background-color', lightGray);
+      $(this).css('box-shadow', boxShadow);
+    } else {
+      $(this).css('background-color', 'white');
+      $(this).css('color', textColor);
+      $(this).css('box-shadow', 'none');
+    }
+  });
+  
   //Get rid of any pre-existing event listeners 
   myMarkers.forEach(function(marker){
 //    google.maps.event.clearInstanceListeners(marker);
@@ -132,11 +142,10 @@ function initMapMarker(myObj, temp, edit) {
     anchorPoint: new google.maps.Point(0, -29),
     place_id: myObj.place_id,
     temp: temp,
-    user: user
+    user: user,
 //    icon: 'http://chart.apis.google.com/chart?chst=d_map_pin_letter&chld=' + 'kk' + '|FF0000|000000'
 //    label: myObj.num
   });
-  
   
   var saveID, deleteID, inputID;
   if (marker.temp) {
@@ -218,10 +227,10 @@ function displayPlacesList(placeList, edit) {
     display += makeListHTML(obj, edit);
   });
   
-  $('#list').on('click', '.name', function (evt) {
+  $('#list').on('click', '.map-button', function (evt) {
     evt.stopPropagation(); evt.preventDefault(); evt.stopImmediatePropagation();
     
-    var clickedID = $(this).closest("div").attr("id");
+    var clickedID = $(this).parent().parent().attr("id");
     var hashID = "#" + clickedID;
     
     myMarkers.forEach(function(obj){
@@ -234,7 +243,7 @@ function displayPlacesList(placeList, edit) {
   $('#list').on('click', '.edit-button', function (evt) {
     evt.stopPropagation(); evt.preventDefault(); evt.stopImmediatePropagation();
     
-    var clickedID = $(this).closest("div").attr("id");
+    var clickedID = $(this).parent().paernt().attr("id");
     var hashID = "#" + clickedID;
     
     $(this).hide();
@@ -251,7 +260,7 @@ function displayPlacesList(placeList, edit) {
   $('#list').on('click', '.save-button', function (evt) {
     evt.stopPropagation(); evt.preventDefault(); evt.stopImmediatePropagation();
     
-    var clickedID = $(this).closest("div").attr("id");
+    var clickedID = $(this).parent().parent().attr("id");
     var hashID = "#" + clickedID;
     
     var newText = $(hashID).children(".desc-input").val();
@@ -282,20 +291,12 @@ function displayPlacesList(placeList, edit) {
 function makeListHTML(obj, edit) {
   var listText = '';
   
-  listText += "<div class='place-info' id='" + obj.place_id + "'>" + 
-          "<h2 href='#' class='name'>" + obj.name + "</h2>";
-            
-  if (obj.phone === null) {
-    listText += "<div class='details'>" +
-              "<h3 class = 'address'>" + obj.address + "</h3>" + 
-            "</div>";
-  } else {
-    listText += "<div class='details'>" +
-              "<h3 class = 'phone'>" + obj.phone + "</h3>" + 
-              "<h3 class = 'address'>" + obj.address + "</h3>" + 
-            "</div>";
-  }
+  //this is sort of a stopgap solution
+  obj.address = obj.address.replace(/,/g, ', ');
   
+  listText += "<div class='place-info' id='" + obj.place_id + "'>" + 
+                "<h2 href='#' class='name'>" + obj.name + "</h2>";
+       
   listText+= "<p class = 'desc'>" + obj.desc + "</p>";
   
   if (obj.desc === '') {
@@ -304,9 +305,22 @@ function makeListHTML(obj, edit) {
     listText+= "<input class='desc-input' type='text' value='" + obj.desc + "'>";
   }
   
+  if (obj.phone == null) {
+    listText += "<div class ='details'>" +
+                  "<h3 class = 'address'>" + obj.address + "</h3>" + 
+                  "<a class='map-button'>Show on Map</a>" + 
+                "</div>";
+  } else {
+    listText += "<div class ='details'>" +
+                  "<h3 class = 'address'>" + obj.address + "</h3>" + 
+                  "<h3 class = 'phone'>" + obj.phone + "</h3>" + 
+                  "<a class='map-button'>Show on Map</a>" + 
+                "</div>";
+  }
+  
   if (edit) {
     listText+= "<a class='edit-button'>Edit</a>" +
-           "<a class='save-button'>Save</a>";
+              "<a class='save-button'>Save</a>";
   }
              
   listText+= "</div>" + "<hr>";
@@ -316,20 +330,23 @@ function makeListHTML(obj, edit) {
 
 function makeinfoHTML(obj, temp, edit, theSave, theDelete, theInput) {
   var windowText = '';
+  
+  //this is sort of a stopgap solution
+  obj.address = obj.address.replace(/,/g, ', ');
 
   windowText += '<div class="window-text">' + 
-                  "<h4>" + obj.name + "</h4>" +
-                  "<h3>" + obj.address + "</h3>";
+                  "<h4 class='window-name'>" + obj.name + "</h4>" +
+                  "<h3 class='window-address'>" + obj.address + "</h3>";
   
   if (temp) {
     windowText+= "<input id='" + theSave + "' type='button' value='Save'>" +  
                  "<input id='" + theDelete + "' type='button' value='Delete'>" + 
                  "<input id='" + theInput + "' type='text' value='Add a description...'>";
-  } else {
+  } else if (edit) {
     windowText+= "<input id='" + theDelete + "' type='button' value='Delete'>";
   }
     
-  windowText+= '</div>';
+  windowText+= "<a class='list-button' href='#" + obj.place_id + "'>Show on List<a> </div>";
   
   return windowText;
 }

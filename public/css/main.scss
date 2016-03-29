@@ -1,23 +1,35 @@
 @import "bourbon/bourbon";
 @import "neat/neat";
 @import "base/base";
+@import "spinner";
 
-#loading {
-  position: absolute;
-  top: 50%;
-  left: 45%;
+.small-text {
+  color: $medium-gray;
+  text-transform: uppercase;
+  font-size: modular-scale(-1);
 }
 
-#select-map {
+#loading {
+  
+}
+
+#select-map {  
   position: absolute;
   z-index: 1;
-  top: 35%;
+  top: 30%;
   margin-left: auto;
   margin-right: auto;
   left: 0;
   right: 0;
   border-radius: $base-border-radius;
   text-align: center;
+  background-color: white;
+  box-shadow: $base-box-shadow;
+  padding: 30px;
+  
+  a {
+    padding: 20px;
+  }
 }
 
 #container {
@@ -34,17 +46,31 @@
     box-shadow: $base-box-shadow;
     height: 7%;
     width: 100%;
+    position: relative;
+    z-index: 1;
     
     #logo {
-      padding: 10px;
+      padding: 10px 25px;
       margin: 0;
     }
     
     #nav {
       @include display(flex);
+      @include align-items(stretch);
+      height: 100%;
       
       li {
-        padding: 10px;
+        @include display(flex);
+        @include align-items(center);
+        padding: 0 15px;
+        color: $dark-gray;
+        
+        &:active,
+        &:focus,
+        &:hover {
+          cursor: pointer;
+          color: tint($dark-gray, 50%) !important;
+        }
       }
     }
   }
@@ -60,7 +86,7 @@
     }
 
     #list {
-      padding: 20px;
+      padding: 20px 40px;
       width: 40%;
       height: 100%;
       overflow: hidden; 
@@ -70,33 +96,11 @@
       .place-info {
         margin: 0 0 30px;
         
-        .name, .address, .phone {
-          margin: 0 0 $header-spacing/6;
-        }
-        
-        .name {
-          color: $action-color;
-          font-weight: 600;
-          
-          &:active,
-          &:focus,
-          &:hover {
-            color: tint($action-color, 50%);
-            cursor: pointer;
-          }
-        }
-        
         .details {
-          margin: 0 0 10px;
-          color: $dark-gray;
+          @extend .small-text;
+          margin: 0 0 15px;
         }
         
-        .desc {
-          color: $medium-gray;
-          font-weight: 400;
-        }
-        
-       
       }
     }
 
@@ -104,10 +108,23 @@
 }
 
 .window-text {
+  font-family: $base-font-family;
+  font-weight: 400;
   overflow: hidden;
   text-align: center;
+  padding: 10px 0;
+  max-width: 200px;
   
-  h4 {
-    font-weight: 600;
+  .window-name {
+    font-size: modular-scale(3);
   }
+  
+  .window-address, .list-button {
+    @extend .small-text;
+    font-size: modular-scale(0);
+  }
+  
+  .list-button {
+    color: $action-color;
+  } 
 }

@@ -1,5 +1,5 @@
 function selectMap(edit) {
-  $('#select-map').on('click', 'button', function (evt) {
+  $('#select-map').on('click', 'a', function (evt) {
     evt.stopPropagation(); evt.preventDefault(); evt.stopImmediatePropagation();
     user = $(this).text();
     $("#select-map").hide();
@@ -115,10 +115,12 @@ $(document).ready(function(){
     getData(edit, '', selectMap);
   }
   
-  $("#nav a").click(function(){
+  $("#nav li").click(function(){
     user = $(this).text();
     setMapOnPlaces(myPlaces, map, edit, user);
-    $("#nav a").css("color", "red");
-    $(this).css("color", 'black');
+//    $("#nav a").css("color", "yellow");
+//    $(this).css("color", 'black');
   });
+
+  
 });
