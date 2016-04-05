@@ -313,9 +313,10 @@ function makeListHTML(obj, edit) {
   
   if (edit) {
     listText+=    "<a class='edit-button'>Edit</a>" +
-                  "<a class='save-button'>Save</a>" +
-               "</div>";
+                  "<a class='save-button'>Save</a>";
   }
+  
+  listText +=   "</div>";
   
   if (obj.phone == null) {
     listText += "<h3 class = 'address'>" + obj.address + "</h3>";                
@@ -325,7 +326,7 @@ function makeListHTML(obj, edit) {
                 "<h3 class = 'phone'>" + obj.phone + "</h3>";
   }
              
-  listText+= "</div>" + "</div>" + "<hr>";
+  listText+= "</div>" + "<hr>";
   
   return listText;
 }

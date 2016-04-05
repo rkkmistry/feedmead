@@ -121,6 +121,10 @@ $(document).ready(function(){
 //    $("#nav a").css("color", "yellow");
 //    $(this).css("color", 'black');
   });
+  
+  $("#mobile-nav-button").click(function(){
+    $("#nav").stop().slideToggle();
+  });
 
   
 });
