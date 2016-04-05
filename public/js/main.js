@@ -15,11 +15,11 @@ function getData(edit, user, callback) {
       type: 'GET',
       dataType: 'json',
       error: function(data) {
-        console.log(data);
+        
         alert("Oh No! Try a refresh?");
       },
       success: function(data) {
-        console.log("We have data");
+        
         callback(edit);
         initMap(data, edit);
         $("#loading").hide();
@@ -37,15 +37,13 @@ function saveData(obj, marker){
     contentType: 'application/json',
     data: JSON.stringify(obj),
     error: function(resp){
-      console.log("Oh no...");
-      console.log(resp);
+     
     },
     success: function(resp){
-      console.log('WooHoo!');
-      console.log(resp);
+  
       obj._id = resp.id;
       obj._rev = resp.rev;
-      console.log("Making the official marker");
+      
       marker.setMap(null);
       initMapMarker(obj, false, true); 
     }
@@ -59,12 +57,10 @@ function updateData(obj){
 		contentType: 'application/json',
 		data: JSON.stringify(obj),
 		error: function(resp){
-			console.log("Oh no...");
-			console.log(resp);
+		
 		},
 		success: function(resp){
-			console.log('Updated!');
-			console.log(resp);
+			
 		}
 	});
 }
@@ -74,7 +70,8 @@ function deleteData(obj, marker, edit){
   var conf = confirm("Are you sure you want to delete '" + obj.name + "' ?");
   if (!conf) return;
   
-  console.log(marker);
+  
+  
   marker.setMap(null);
   
   //Proceed if confirm is true
@@ -84,13 +81,10 @@ function deleteData(obj, marker, edit){
       contentType: 'application/json',
       data: JSON.stringify(obj),
       error: function(resp){
-        console.log("Oh no...");
-        console.log(resp);
+       
       },
       success: function(resp){
-        console.log('Deleted!');
-        console.log(resp);
-//        setMapOnPlaces(myPlaces, map, edit, user);
+   
       }
   });
 }
@@ -101,7 +95,7 @@ $(document).ready(function(){
   $("#container").hide();
   
   if (currentPage === 'editPage'){
-    console.log("Edit Mode");
+    
     edit = true;
 //    var secret = prompt('Please enter password');
 //    if (secret === 'krishan'){
@@ -111,7 +105,7 @@ $(document).ready(function(){
 //      }
   } else {
     edit = false;
-    console.log("Display Mode");
+    
     getData(edit, '', selectMap);
   }
   

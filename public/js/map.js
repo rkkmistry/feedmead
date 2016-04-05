@@ -16,8 +16,7 @@ function initMap(theData, edit) {
   theData.forEach(function(obj) {
     myPlaces.push(obj.doc);
   });
-  console.log(myPlaces);
-  console.log("Initializing map...");
+
   
   //MAP PROPERTIES
   map = new google.maps.Map(document.getElementById('map'), {
@@ -101,7 +100,7 @@ function initMap(theData, edit) {
 }
 
 function setMapOnPlaces(placeList, map, edit, user) {
-  console.log("The User is: " + user);
+  
   
   $("#nav li").each(function() {  
     if($(this).text() == user) {
@@ -121,7 +120,7 @@ function setMapOnPlaces(placeList, map, edit, user) {
   });
   
   myMarkers = [];
-  console.log("Setting Places on Map...");
+  
   var thisMap = [];
   
   placeList.forEach(function(obj){
@@ -172,13 +171,13 @@ function initMapMarker(myObj, temp, edit) {
     evt.stopPropagation(); evt.preventDefault(); evt.stopImmediatePropagation();
 
     curMap = [];
-    console.log(marker);
+    
 
     if (marker.temp) {
-      console.log("Deleting temp marker...");
+      
       marker.setMap(null);
     } else {
-      console.log("Deleting permanent marker...");
+      
       deleteData(myObj, marker, edit);
       myPlaces.forEach(function(obj) {
         if(obj.user === user && obj.id === myObj.id) {
@@ -198,7 +197,7 @@ function initMapMarker(myObj, temp, edit) {
   
   $('.window-text').on('click', '#'+saveID,  function(evt) {
     evt.stopPropagation(); evt.preventDefault(); evt.stopImmediatePropagation();
-    console.log("Saving marker...");
+    
 
     curMap = [];
 
@@ -206,7 +205,7 @@ function initMapMarker(myObj, temp, edit) {
       myObj.desc = $("#"+inputID).val();
       myPlaces.push(myObj);
       saveData(myObj, marker);
-      console.log("Waiting for couch confirmation...");
+    
     }
 
     //-----Sidebar logic-----//
@@ -243,7 +242,7 @@ function displayPlacesList(placeList, edit) {
   $('#list').on('click', '.edit-button', function (evt) {
     evt.stopPropagation(); evt.preventDefault(); evt.stopImmediatePropagation();
     
-    console.log("clicked");
+    
     
     var clickedID = $(this).closest(".place-info").attr("id");
     var hashID = "#" + clickedID;
@@ -275,7 +274,7 @@ function displayPlacesList(placeList, edit) {
     //this doesn't work - "every"?
     myPlaces.forEach(function(obj){
       if(obj.place_id == clickedID) {
-        console.log('found');
+        
         if (obj.desc !== newText) {
           obj.desc = newText;
           updateData(obj); 
