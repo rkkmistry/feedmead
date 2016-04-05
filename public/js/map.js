@@ -10,6 +10,10 @@ var textColor = 'rgb(38, 38, 38)';
 var boxShadow = 'inset 0 1px 2px #aaa';
 var lightGray = 'rgb(244, 244, 244)';
 
+//MAP STYLES
+var styles =
+[{"featureType":"administrative","elementType":"labels.text.fill","stylers":[{"color":"#444444"}]},{"featureType":"landscape","elementType":"all","stylers":[{"color":"#f2f2f2"}]},{"featureType":"poi","elementType":"all","stylers":[{"visibility":"on"}]},{"featureType":"road","elementType":"all","stylers":[{"saturation":-100},{"lightness":45}]},{"featureType":"road.highway","elementType":"all","stylers":[{"visibility":"simplified"}]},{"featureType":"road.arterial","elementType":"labels.icon","stylers":[{"visibility":"off"}]},{"featureType":"transit","elementType":"all","stylers":[{"visibility":"off"}]},{"featureType":"water","elementType":"all","stylers":[{"color":"#1b4a75"},{"visibility":"on"}]}];
+
 //INITIALIZE MAP/AUTOCOMPLETE
 function initMap(theData, edit) {
   myPlaces = [];
@@ -24,7 +28,8 @@ function initMap(theData, edit) {
     center: {lat: 24.4667, lng: 54.3667},
     zoom: 13,
     mapTypeControl: false,
-    streetViewControl: false
+    streetViewControl: false, 
+    styles: styles
   });
   
   if (edit) {
@@ -131,6 +136,7 @@ function setMapOnPlaces(placeList, map, edit, user) {
     }
   });
   displayPlacesList(thisMap, edit);
+  infowindow.close();
 }
 
 function initMapMarker(myObj, temp, edit) {
