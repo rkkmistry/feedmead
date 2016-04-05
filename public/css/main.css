@@ -6,7 +6,7 @@ html {
 
 button, input[type="button"], input[type="reset"], input[type="submit"] {
   appearance: none;
-  background-color: #0071c3;
+  background-color: #0b5bb5;
   border: 0;
   border-radius: 3px;
   color: #fff;
@@ -24,13 +24,13 @@ button, input[type="button"], input[type="reset"], input[type="submit"] {
   vertical-align: middle;
   white-space: nowrap; }
   button:hover, button:focus, input[type="button"]:hover, input[type="button"]:focus, input[type="reset"]:hover, input[type="reset"]:focus, input[type="submit"]:hover, input[type="submit"]:focus {
-    background-color: #005a9c;
+    background-color: #094991;
     color: #fff; }
   button:disabled, input[type="button"]:disabled, input[type="reset"]:disabled, input[type="submit"]:disabled {
     cursor: not-allowed;
     opacity: 0.5; }
     button:disabled:hover, input[type="button"]:disabled:hover, input[type="reset"]:disabled:hover, input[type="submit"]:disabled:hover {
-      background-color: #0071c3; }
+      background-color: #0b5bb5; }
 
 fieldset {
   background-color: transparent;
@@ -71,8 +71,8 @@ select[multiple] {
     border-color: #c3c3c3; }
   input[type="color"]:focus, input[type="date"]:focus, input[type="datetime"]:focus, input[type="datetime-local"]:focus, input[type="email"]:focus, input[type="month"]:focus, input[type="number"]:focus, input[type="password"]:focus, input[type="search"]:focus, input[type="tel"]:focus, input[type="text"]:focus, input[type="time"]:focus, input[type="url"]:focus, input[type="week"]:focus, input:not([type]):focus, textarea:focus,
   select[multiple]:focus {
-    border-color: #0071c3;
-    box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.06), 0 0 5px rgba(0, 98, 170, 0.7);
+    border-color: #0b5bb5;
+    box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.06), 0 0 5px rgba(10, 79, 157, 0.7);
     outline: none; }
   input[type="color"]:disabled, input[type="date"]:disabled, input[type="datetime"]:disabled, input[type="datetime-local"]:disabled, input[type="email"]:disabled, input[type="month"]:disabled, input[type="number"]:disabled, input[type="password"]:disabled, input[type="search"]:disabled, input[type="tel"]:disabled, input[type="text"]:disabled, input[type="time"]:disabled, input[type="url"]:disabled, input[type="week"]:disabled, input:not([type]):disabled, textarea:disabled,
   select[multiple]:disabled {
@@ -182,7 +182,7 @@ p {
   margin: 0 0 0.7em; }
 
 a {
-  color: #0071c3;
+  color: #0b5bb5;
   text-decoration: none;
   transition: color 150ms ease;
   cursor: pointer; }
@@ -240,7 +240,7 @@ hr {
 .spinner > div {
   width: 20px;
   height: 20px;
-  background-color: #0071c3;
+  background-color: #0b5bb5;
   margin: 5px;
   border-radius: 100%;
   display: inline-block;
@@ -465,7 +465,7 @@ hr {
     text-transform: uppercase;
     font-size: 0.9em; }
   .window-text .list-button, .window-text .window-save, .window-text .window-delete {
-    color: #0071c3;
+    color: #0b5bb5;
     text-transform: uppercase;
     font-size: 0.9em;
     padding: 10px; }

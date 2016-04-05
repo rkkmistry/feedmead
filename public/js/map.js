@@ -10,10 +10,6 @@ var textColor = 'rgb(38, 38, 38)';
 var boxShadow = 'inset 0 1px 2px #aaa';
 var lightGray = 'rgb(244, 244, 244)';
 
-//MAP STYLES
-var styles =
-[{"featureType":"administrative","elementType":"labels.text.fill","stylers":[{"color":"#444444"}]},{"featureType":"landscape","elementType":"all","stylers":[{"color":"#f2f2f2"}]},{"featureType":"poi","elementType":"all","stylers":[{"visibility":"on"}]},{"featureType":"road","elementType":"all","stylers":[{"saturation":-100},{"lightness":45}]},{"featureType":"road.highway","elementType":"all","stylers":[{"visibility":"simplified"}]},{"featureType":"road.arterial","elementType":"labels.icon","stylers":[{"visibility":"off"}]},{"featureType":"transit","elementType":"all","stylers":[{"visibility":"off"}]},{"featureType":"water","elementType":"all","stylers":[{"color":"#1b4a75"},{"visibility":"on"}]}];
-
 //INITIALIZE MAP/AUTOCOMPLETE
 function initMap(theData, edit) {
   myPlaces = [];
@@ -149,6 +145,7 @@ function initMapMarker(myObj, temp, edit) {
     place_id: myObj.place_id,
     temp: temp,
     user: user,
+    icon: image
 //    icon: 'http://chart.apis.google.com/chart?chst=d_map_pin_letter&chld=' + 'kk' + '|FF0000|000000'
 //    label: myObj.num
   });
