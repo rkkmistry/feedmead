@@ -97,12 +97,12 @@ $(document).ready(function(){
   if (currentPage === 'editPage'){
     
     edit = true;
-//    var secret = prompt('Please enter password');
-//    if (secret === 'krishan'){
+    var secret = prompt('Please enter password');
+    if (secret === 'krishan'){
       getData(edit, '', selectMap);
-//      } else {
-//        alert("Go away.");
-//      }
+      } else {
+        alert("Go away.");
+      }
   } else {
     edit = false;
     
@@ -112,8 +112,6 @@ $(document).ready(function(){
   $("#nav li").click(function(){
     user = $(this).text();
     setMapOnPlaces(myPlaces, map, edit, user);
-//    $("#nav a").css("color", "yellow");
-//    $(this).css("color", 'black');
   });
 
   
