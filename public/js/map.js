@@ -23,7 +23,8 @@ function initMap(theData, edit) {
     center: {lat: 24.4667, lng: 54.3667},
     zoom: 13,
     mapTypeControl: false,
-    streetViewControl: false
+    streetViewControl: false, 
+    styles: styles
   });
   
   if (edit) {
@@ -130,6 +131,7 @@ function setMapOnPlaces(placeList, map, edit, user) {
     }
   });
   displayPlacesList(thisMap, edit);
+  infowindow.close();
 }
 
 function initMapMarker(myObj, temp, edit) {
@@ -142,19 +144,21 @@ function initMapMarker(myObj, temp, edit) {
     place_id: myObj.place_id,
     temp: temp,
     user: user,
+    icon: image
 //    icon: 'http://chart.apis.google.com/chart?chst=d_map_pin_letter&chld=' + 'kk' + '|FF0000|000000'
 //    label: myObj.num
   });
   
   var saveID, deleteID, inputID;
+  var cleanUser = marker.user.replace(/[^\w\s]/gi, '');
   if (marker.temp) {
-    saveID = "save-" + myObj.place_id + "-temp-" + marker.user.replace(/ /g,'');
-    deleteID = "delete-" + myObj.place_id +  "-temp-"  + marker.user.replace(/ /g,'');
-    inputID = "input-" + myObj.place_id +  "-temp-" + marker.user.replace(/ /g,'');
+    saveID = "save-" + myObj.place_id + "-temp-" + cleanUser.replace(/ /g,'');
+    deleteID = "delete-" + myObj.place_id +  "-temp-"  + cleanUser.replace(/ /g,'');
+    inputID = "input-" + myObj.place_id +  "-temp-" + cleanUser.replace(/ /g,'');
   } else {
-    saveID = "save-" + myObj.place_id + "-" + marker.user.replace(/ /g,'');
-    deleteID = "delete-" + myObj.place_id  + "-" + marker.user.replace(/ /g,'');
-    inputID = "input-" + myObj.place_id  + "-" + marker.user.replace(/ /g,'');
+    saveID = "save-" + myObj.place_id + "-" + cleanUser.replace(/ /g,'');
+    deleteID = "delete-" + myObj.place_id  + "-" + cleanUser.replace(/ /g,'');
+    inputID = "input-" + myObj.place_id  + "-" + cleanUser.replace(/ /g,'');
   }
 
   myObj.content = makeinfoHTML(myObj, temp, edit, saveID, deleteID, inputID);
@@ -312,9 +316,10 @@ function makeListHTML(obj, edit) {
   
   if (edit) {
     listText+=    "<a class='edit-button'>Edit</a>" +
-                  "<a class='save-button'>Save</a>" +
-               "</div>";
+                  "<a class='save-button'>Save</a>";
   }
+  
+  listText +=   "</div>";
   
   if (obj.phone == null) {
     listText += "<h3 class = 'address'>" + obj.address + "</h3>";                
@@ -324,7 +329,7 @@ function makeListHTML(obj, edit) {
                 "<h3 class = 'phone'>" + obj.phone + "</h3>";
   }
              
-  listText+= "</div>" + "</div>" + "<hr>";
+  listText+= "</div>" + "<hr>";
   
   return listText;
 }
@@ -340,7 +345,7 @@ function makeinfoHTML(obj, temp, edit, theSave, theDelete, theInput) {
                   "<h3 class='window-address'>" + obj.address + "</h3>";
   
   if (temp) {
-    windowText+= "<input id='" + theInput + "' type='text' value='Add a description...'>" +
+    windowText+= "<input id='" + theInput + "' type='text' placeholder='Add a description...'>" +
                  "<a class='window-save' id='" + theSave + "'>Save</a>" +  
                  "<a class='window-delete' id='" + theDelete + "'>Delete</a>";
                  

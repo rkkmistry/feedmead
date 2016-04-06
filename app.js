@@ -25,7 +25,6 @@ var cloudant_USER = 'rkkmistry';
 var cloudant_DB = 'feedme';
 var cloudant_KEY = 'iseedgencedgencelivested';
 var cloudant_PASSWORD = 'd42e3613059f8cea113b1c002bb1ddc8b42e482c';
-
 var cloudant_URL = "https://rkkmistry.cloudant.com/feedme";
 
 //Respond with the main view
@@ -37,24 +36,6 @@ app.get("/", function(req, res) {
 app.get("/edit", function(req, res) {
   res.render('index.html', {page: 'editPage'});
 });
-
-//app.get("/user/:user", function(req, res) {
-//  res.render('index.html', {page: 'othermap'});
-//});
-
-//Data serving via path parameter
-//app.get("/:user", function(req,res){
-//  console.log(req.params);
-//  var theUserID = req.params.userID;
-//  res.send(theUserID);
-//});
-
-//Data serving via query parameter
-//app.get("/user", function(req,res){
-//  console.log(req.query);
-//  var theUserID = req.query.userID || "not sure";
-//  res.send("The user id is: " + theUserID);
-//});
 
 //Respond with data
 app.get("/data", function(req, res) {

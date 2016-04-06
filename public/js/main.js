@@ -4,6 +4,7 @@ function selectMap(edit) {
     user = $(this).text();
     $("#select-map").hide();
     $("#container").css("pointer-events", "auto");
+    $("#container").css("filter", "none");
     $("#container").css("-webkit-filter", "none");
     setMapOnPlaces(myPlaces, map, edit, user);
   });
@@ -112,6 +113,10 @@ $(document).ready(function(){
   $("#nav li").click(function(){
     user = $(this).text();
     setMapOnPlaces(myPlaces, map, edit, user);
+  });
+  
+  $("#mobile-nav-button").click(function(){
+    $("#nav").stop().slideToggle();
   });
 
   
