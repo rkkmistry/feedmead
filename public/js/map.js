@@ -151,14 +151,15 @@ function initMapMarker(myObj, temp, edit) {
   });
   
   var saveID, deleteID, inputID;
+  var cleanUser = marker.user.replace(/[^\w\s]/gi, '');
   if (marker.temp) {
-    saveID = "save-" + myObj.place_id + "-temp-" + marker.user.replace(/ /g,'');
-    deleteID = "delete-" + myObj.place_id +  "-temp-"  + marker.user.replace(/ /g,'');
-    inputID = "input-" + myObj.place_id +  "-temp-" + marker.user.replace(/ /g,'');
+    saveID = "save-" + myObj.place_id + "-temp-" + cleanUser.replace(/ /g,'');
+    deleteID = "delete-" + myObj.place_id +  "-temp-"  + cleanUser.replace(/ /g,'');
+    inputID = "input-" + myObj.place_id +  "-temp-" + cleanUser.replace(/ /g,'');
   } else {
-    saveID = "save-" + myObj.place_id + "-" + marker.user.replace(/ /g,'');
-    deleteID = "delete-" + myObj.place_id  + "-" + marker.user.replace(/ /g,'');
-    inputID = "input-" + myObj.place_id  + "-" + marker.user.replace(/ /g,'');
+    saveID = "save-" + myObj.place_id + "-" + cleanUser.replace(/ /g,'');
+    deleteID = "delete-" + myObj.place_id  + "-" + cleanUser.replace(/ /g,'');
+    inputID = "input-" + myObj.place_id  + "-" + cleanUser.replace(/ /g,'');
   }
 
   myObj.content = makeinfoHTML(myObj, temp, edit, saveID, deleteID, inputID);
@@ -345,7 +346,7 @@ function makeinfoHTML(obj, temp, edit, theSave, theDelete, theInput) {
                   "<h3 class='window-address'>" + obj.address + "</h3>";
   
   if (temp) {
-    windowText+= "<input id='" + theInput + "' type='text' value='Add a description...'>" +
+    windowText+= "<input id='" + theInput + "' type='text' placeholder='Add a description...'>" +
                  "<a class='window-save' id='" + theSave + "'>Save</a>" +  
                  "<a class='window-delete' id='" + theDelete + "'>Delete</a>";
                  
