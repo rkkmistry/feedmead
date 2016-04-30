@@ -1,7 +1,42 @@
+var testData = [
+  
+  {
+    userID: "fiwjhgfjkwhefjkwrbgvjkrhb",
+    name: "Krishan"
+  },
+  {
+    userID: "flsdkghfjdsjghsdv",
+    name: "Craig"
+  }
+];
+
+
+
 function selectMap(edit) {
+  
+  
+    var choiceString = "";
+    testData.forEach(function(user){
+      choiceString += "<a id='" + user.userID + " class='userChoice'>" + user.name + "</a>";      
+    });
+    $('#select-map').append(choiceString);
+        
+  
   $('#select-map').on('click', 'a', function (evt) {
     evt.stopPropagation(); evt.preventDefault(); evt.stopImmediatePropagation();
-    user = $(this).text();
+    
+    console.log(evt);
+    console.log(evt.target.id)
+    
+    console.log(this);
+    console.log($(this));
+
+    
+    //user = $(this).text();
+
+    
+    return;
+      
     $("#select-map").hide();
     $("#container").css("pointer-events", "auto");
     $("#container").css("filter", "none");
@@ -16,17 +51,14 @@ function getData(edit, user, callback) {
       type: 'GET',
       dataType: 'json',
       error: function(data) {
-        console.log(data);
         alert("Oh No! Try a refresh?");
       },
       success: function(data) {
-        console.log("We have data");
         callback(edit);
         initMap(data, edit);
         $("#loading").hide();
         $("#container").show();
         $("#select-map").show();
-        
       }
     });
 }
@@ -38,15 +70,11 @@ function saveData(obj, marker){
     contentType: 'application/json',
     data: JSON.stringify(obj),
     error: function(resp){
-      console.log("Oh no...");
-      console.log(resp);
+     
     },
     success: function(resp){
-      console.log('WooHoo!');
-      console.log(resp);
       obj._id = resp.id;
       obj._rev = resp.rev;
-      console.log("Making the official marker");
       marker.setMap(null);
       initMapMarker(obj, false, true); 
     }
@@ -60,12 +88,10 @@ function updateData(obj){
 		contentType: 'application/json',
 		data: JSON.stringify(obj),
 		error: function(resp){
-			console.log("Oh no...");
-			console.log(resp);
+		
 		},
 		success: function(resp){
-			console.log('Updated!');
-			console.log(resp);
+			
 		}
 	});
 }
@@ -74,10 +100,8 @@ function deleteData(obj, marker, edit){
   //Make sure you want to delete
   var conf = confirm("Are you sure you want to delete '" + obj.name + "' ?");
   if (!conf) return;
-  
   console.log(marker);
   marker.setMap(null);
-  
   //Proceed if confirm is true
   $.ajax({
       url: '/delete',
@@ -85,24 +109,21 @@ function deleteData(obj, marker, edit){
       contentType: 'application/json',
       data: JSON.stringify(obj),
       error: function(resp){
-        console.log("Oh no...");
-        console.log(resp);
+       
       },
       success: function(resp){
-        console.log('Deleted!');
-        console.log(resp);
-//        setMapOnPlaces(myPlaces, map, edit, user);
+   
       }
   });
 }
 
 $(document).ready(function(){
+    
   var edit;
   $("#select-map").hide();
   $("#container").hide();
   
   if (currentPage === 'editPage'){
-    console.log("Edit Mode");
     edit = true;
 //    var secret = prompt('Please enter password');
 //    if (secret === 'krishan'){
@@ -112,15 +133,12 @@ $(document).ready(function(){
 //      }
   } else {
     edit = false;
-    console.log("Display Mode");
     getData(edit, '', selectMap);
   }
   
   $("#nav li").click(function(){
     user = $(this).text();
     setMapOnPlaces(myPlaces, map, edit, user);
-//    $("#nav a").css("color", "yellow");
-//    $(this).css("color", 'black');
   });
   
   $("#mobile-nav-button").click(function(){
