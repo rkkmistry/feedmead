@@ -2,7 +2,11 @@
 var express = require("express");
 var Request = require('request');
 var bodyParser = require('body-parser');
+var cookieParser = require('cookie-parser');
+var session = require('express-session');
 var _ = require('underscore');
+var passport = require('passport');
+var GoogleStrategy = require('passport-google-oauth').OAuth2Strategy;
 
 //Create an 'express' object
 var app = express();
@@ -15,26 +19,133 @@ app.set('view engine', 'html');
 //Add connection to the public folder for css & js files
 app.use(express.static(__dirname + '/public'));
 
+passport.serializeUser(function(user, done) {
+  done(null, user);
+});
+
+passport.deserializeUser(function(obj, done) {
+  done(null, obj);
+});
+
 // Enable json body parsing of application/json
+app.use(cookieParser()); 
+app.use(session({ 
+	secret: 'cookie_secret',
+	name:   'kaas',
+//	store:  new RedisStore({
+//		host: '127.0.0.1',
+//		port: 6379
+//	}),
+	proxy:  true,
+    resave: true,
+    saveUninitialized: true
+}));
+
 app.use(bodyParser.json());
+app.use(passport.initialize());
+app.use(passport.session());
+
+/*---------------
+//AUTH CONFIG
+----------------*/
+
+passport.use(new GoogleStrategy({  
+    clientID: "310950737477-acoudi08epsnul7vp0qnejt95ria91i4.apps.googleusercontent.com",
+    clientSecret: "UPkyLSMsA0AD9_Q3pD8j1sj9",
+    callbackURL: "http://localhost:3000/auth/google/callback", 
+    passReqToCallback: true
+  },
+  function(request, accessToken, refreshToken, profile, done) {
+
+    console.log("*********************");
+    console.log(profile)
+    console.log("*********************");      
+
+    //Check all user profiles
+
+    //Make a user profile
+//    var userDataObj = {
+//      name: profile.displayName,
+//      googleID: profile.id 
+//    };  
+//
+//    Request.post({
+//        url: cloudant_URL,
+//        auth: {
+//            user: cloudant_KEY,
+//            pass: cloudant_PASSWORD
+//        },
+//        json: true,
+//        body: userDataObj
+//    },
+//    function (error, response, body){
+//        if (response.statusCode == 201){
+//            console.log("Saved!");
+//            curUser = userDataObj;
+//            return done(null, profile);
+//            //res.json(body);
+//        }
+//        else{
+//            console.log("Uh oh...");
+//            console.log("Error: " + res.statusCode);
+//            res.send("Something went wrong...");
+//        }
+//    });
+  
+    process.nextTick(function () {
+      // To keep the example simple, the user's Google profile is returned to
+      // represent the logged-in user.  In a typical application, you would want
+      // to associate the Google account with a user record in your database,
+      // and return that user instead.
+      return done(null, profile);
+    });
+  }                            
+));
 
 /*---------------
 //DATABASE CONFIG
 ----------------*/
 var cloudant_USER = 'rkkmistry';
-var cloudant_DB = 'feedme';
-var cloudant_KEY = 'iseedgencedgencelivested';
-var cloudant_PASSWORD = 'd42e3613059f8cea113b1c002bb1ddc8b42e482c';
-var cloudant_URL = "https://rkkmistry.cloudant.com/feedme";
+
+//production version
+//var cloudant_DB = 'feedme';
+//var cloudant_KEY = 'iseedgencedgencelivested';
+//var cloudant_PASSWORD = 'd42e3613059f8cea113b1c002bb1ddc8b42e482c';
+
+//development version
+var cloudant_DB = 'feedme-dev';
+var cloudant_KEY = 'stryoustromedispentillet';
+var cloudant_PASSWORD = 'c13f6c01943b3de8484e6d93d6ed63b84c2f2b3c';
+
+var cloudant_URL = "https://rkkmistry.cloudant.com/" + cloudant_DB;
+
+/*---------------
+//ROUTES
+----------------*/
 
 //Respond with the main view
 app.get("/", function(req, res) {
-  res.render('index.html', {page: 'homePage'});
+  res.render('index.html', {page: 'homePage', user: req.user});
 });
+
+//for login
+app.get('/auth/google',
+  passport.authenticate('google', {
+    scope: ['https://www.googleapis.com/auth/plus.login'] 
+  }
+));
+
+app.get( '/auth/google/callback', 
+  passport.authenticate( 'google', { 
+    successRedirect: '/edit',
+    failureRedirect: '/login'
+  }
+));
 
 //Respond with the main view
 app.get("/edit", function(req, res) {
-  res.render('index.html', {page: 'editPage'});
+  console.log(req.user);
+  res.render('index.html', {page: 'homePage', user: req.user});
 });
 
 //Respond with data
@@ -50,18 +161,17 @@ app.get("/data", function(req, res) {
 		json: true
 	},
 	function (error, response, body){
-        var theRows = body.rows;
-    
-		//Send the data
-		console.log(theRows); 
-		res.json(theRows);
+      //Send the data
+      console.log(body.rows); 
+      res.json(body.rows);
 	});
 });
 
 app.get("/data/:user", function(req,res){
 	var user = req.params.user;
-	console.log('Getting' + user + "'s Places");
-	// Use the Request lib to GET the data in the CouchDB on Cloudant
+	console.log('Places for ' + user);
+	
+  // Use the Request lib to GET the data in the CouchDB on Cloudant
 	Request.get({
 		url: cloudant_URL+"/_all_docs?include_docs=true",
 		auth: {
@@ -74,7 +184,10 @@ app.get("/data/:user", function(req,res){
 		var theRows = body.rows;
 		// Filter the results to match the current word
 		var filteredRows = theRows.filter(function (d) {
-			return d.doc.name == "Masala";
+          if (d.doc.user == user) {
+            console.log(d.doc);
+            return d.doc;
+          }
 		});
 		res.json(filteredRows);
 	});
