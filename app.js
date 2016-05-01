@@ -56,50 +56,71 @@ passport.use(new GoogleStrategy({
     passReqToCallback: true
   },
   function(request, accessToken, refreshToken, profile, done) {
-
     console.log("*********************");
     console.log(profile)
     console.log("*********************");      
 
-    //Check all user profiles
-
-    //Make a user profile
-//    var userDataObj = {
-//      name: profile.displayName,
-//      googleID: profile.id 
-//    };  
-//
-//    Request.post({
-//        url: cloudant_URL,
-//        auth: {
-//            user: cloudant_KEY,
-//            pass: cloudant_PASSWORD
-//        },
-//        json: true,
-//        body: userDataObj
-//    },
-//    function (error, response, body){
-//        if (response.statusCode == 201){
-//            console.log("Saved!");
-//            curUser = userDataObj;
-//            return done(null, profile);
-//            //res.json(body);
-//        }
-//        else{
-//            console.log("Uh oh...");
-//            console.log("Error: " + res.statusCode);
-//            res.send("Something went wrong...");
-//        }
-//    });
-  
     process.nextTick(function () {
-      // To keep the example simple, the user's Google profile is returned to
-      // represent the logged-in user.  In a typical application, you would want
-      // to associate the Google account with a user record in your database,
-      // and return that user instead.
-      return done(null, profile);
+      
+      userDataObj = {
+        type: "user",
+        id: profile.id,
+        name: profile.displayName
+      }
+      
+      //get all users
+      Request.get({
+        url: cloudant_URL+"/_all_docs?include_docs=true",
+        auth: {
+            user: cloudant_KEY,
+            pass: cloudant_PASSWORD
+        },
+        json: true
+      },
+      function (error, response, body){
+        var theRows = body.rows;  
+        theRows = theRows.filter(function (d) {
+          if (d.doc.type == "user") {
+            return d.doc;
+          }
+        });
+        
+        var stupidBoolean = true;
+        
+        theRows.forEach(function(elem){
+          if (elem.doc.id == profile.id) {
+            console.log("Already a user!")
+            stupidBoolean = false;
+            return done(null, profile);
+          }
+        })
+        
+        if(stupidBoolean) {
+           //if person is not a user then make new profile
+            Request.post({
+              url: cloudant_URL,
+              auth: {
+                  user: cloudant_KEY,
+                  pass: cloudant_PASSWORD
+              },
+              json: true,
+              body: userDataObj
+            },
+            function (error, response, body) {
+              if (response.statusCode == 201) {
+                console.log("Saved new user");
+                return done(null, profile);
+              } else {
+                console.log("Error: " + res.statusCode);
+                res.send("Something went wrong...");
+              }
+            });
+        }
+ 
+      });
+      
     });
-  }                            
+  }
 ));
 
 /*---------------
@@ -135,16 +156,20 @@ app.get('/auth/google',
   }
 ));
 
-app.get( '/auth/google/callback', 
+app.get('/auth/google/callback', 
   passport.authenticate( 'google', { 
     successRedirect: '/edit',
     failureRedirect: '/login'
   }
 ));
 
+app.get('/logout', function(req, res){
+  req.logout();
+  res.redirect('/');
+});
+
 //Respond with the main view
-app.get("/edit", function(req, res) {
-  console.log(req.user);
+app.get("/edit", ensureAuthenticated, function(req, res) {
   res.render('index.html', {page: 'homePage', user: req.user});
 });
 
@@ -167,31 +192,31 @@ app.get("/data", function(req, res) {
 	});
 });
 
-app.get("/data/:user", function(req,res){
-	var user = req.params.user;
-	console.log('Places for ' + user);
-	
-  // Use the Request lib to GET the data in the CouchDB on Cloudant
-	Request.get({
-		url: cloudant_URL+"/_all_docs?include_docs=true",
-		auth: {
-			user: cloudant_KEY,
-			pass: cloudant_PASSWORD
-		},
-		json: true
-	},
-	function (error, response, body){
-		var theRows = body.rows;
-		// Filter the results to match the current word
-		var filteredRows = theRows.filter(function (d) {
-          if (d.doc.user == user) {
-            console.log(d.doc);
-            return d.doc;
-          }
-		});
-		res.json(filteredRows);
-	});
-});
+//app.get("/data/:user", function(req,res){
+//	var user = req.params.user;
+//	console.log('Places for ' + user);
+//	
+//  // Use the Request lib to GET the data in the CouchDB on Cloudant
+//	Request.get({
+//		url: cloudant_URL+"/_all_docs?include_docs=true",
+//		auth: {
+//			user: cloudant_KEY,
+//			pass: cloudant_PASSWORD
+//		},
+//		json: true
+//	},
+//	function (error, response, body){
+//		var theRows = body.rows;
+//		// Filter the results to match the current word
+//		var filteredRows = theRows.filter(function (d) {
+//          if (d.doc.user == user) {
+//            console.log(d.doc);
+//            return d.doc;
+//          }
+//		});
+//		res.json(filteredRows);
+//	});
+//});
 
 //SAVE an object to the db
 app.post("/save", function(req,res){
@@ -269,6 +294,12 @@ app.post("/delete", function(req,res){
 		res.json(body);
 	});
 });
+
+//do i even need this?
+function ensureAuthenticated(req, res, next) {
+  if (req.isAuthenticated()) { return next(); }
+  res.redirect('/auth/google');
+}
 
 app.listen(process.env.PORT || 3000);
 console.log('Express started on port 3000');

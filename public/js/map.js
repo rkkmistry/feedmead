@@ -10,14 +10,8 @@ var textColor = 'rgb(38, 38, 38)';
 var boxShadow = 'inset 0 1px 2px #aaa';
 var lightGray = 'rgb(244, 244, 244)';
 
-//INITIALIZE MAP/AUTOCOMPLETE
-function initMap(theData, edit) {
-  myPlaces = [];
-  theData.forEach(function(obj) {
-    myPlaces.push(obj.doc);
-  });
-  
-  //MAP PROPERTIES
+//INITIALIZE MAP
+function initMap() {
   map = new google.maps.Map(document.getElementById('map'), {
     center: {lat: 24.4667, lng: 54.3667},
     zoom: 13,
@@ -26,88 +20,84 @@ function initMap(theData, edit) {
     styles: styles
   });
   
-  if (edit) {
-    
-    //AUTOCOMPLETE PROPERTIES
-    $('body').prepend("<input id='pac-input' class='controls' type='text' placeholder='Enter a location'>");
-    var input = /** @type {!HTMLInputElement} */(document.getElementById('pac-input'));
-    map.controls[google.maps.ControlPosition.TOP_LEFT].push(input);
-    var options = {
-      types: ['establishment']
-    };
-    
-    autocomplete = new google.maps.places.Autocomplete(input, options);
-    autocomplete.bindTo('bounds', map);
-    
-    autocomplete.addListener('place_changed', function() {
-      myMarkers.forEach(function(marker) {
-        if (marker.temp) {
-          marker.setMap(null);
-        }
-      });
-      
-      var place = autocomplete.getPlace();
-      $('#pac-input').val('');
-      
-      //get place and pull out desired properties in new object
-      var myObj = { 
-        name: place.name,
-        address: place.formatted_address,
-        loc: place.geometry.location,
-        id: place.id,
-        place_id: place.place_id,
-        phone: place.international_phone_number,
-        desc: "",
-        user: user
-      };
-      
-      //basic formatting for the address -- there is an issue here
-      myObj.address = myObj.address.replace(" - ", " ");
-      myObj.address = myObj.address.replace(" -", " ");
-      myObj.address = myObj.address.replace("Abu Dhabi", "");
-      myObj.address = myObj.address.replace("United Arab Emirates", "");
+  //AUTOCOMPLETE PROPERTIES
+  $('body').prepend("<input id='pac-input' class='controls' type='text' placeholder='Enter a location'>");
+  var input = /** @type {!HTMLInputElement} */(document.getElementById('pac-input'));
+  map.controls[google.maps.ControlPosition.TOP_LEFT].push(input);
+  $("#pac-input").hide();
+  
+  var options = {
+    types: ['establishment']
+  };
 
-  //Mildly better syntax for below   
-  //    if(myPlaces.every(function(found){
-  //      found.place_id == myObj.place_id
-  //    })) {
-  //      
-  //    }
-      
-      var notinArray = true;
-      myPlaces.forEach(function(found) {
-        if (found.user == user && found.place_id == myObj.place_id) {
-          notinArray = false;
-          myMarkers.forEach(function(foundMark){
-            if(found.place_id == foundMark.place_id) {
-              map.setCenter(found.loc);
-              infowindow.setContent(found.content);
-              infowindow.open(map, foundMark);
-              return;
-            }
-          });
-          //return;
-        }
-      });
+  autocomplete = new google.maps.places.Autocomplete(input, options);
+  autocomplete.bindTo('bounds', map);
 
-      if (notinArray) {
-        map.setCenter(myObj.loc);
-        initMapMarker(myObj, true, true);
-      } 
-
+  autocomplete.addListener('place_changed', function() {
+    console.log(userID);
+    
+    myMarkers.forEach(function(marker) {
+      if (marker.temp) {
+        marker.setMap(null);
+      }
     });
-  }
+
+    var place = autocomplete.getPlace();
+    $('#pac-input').val('');
+    
+    //get place and pull out desired properties in new object
+    var myObj = { 
+      name: place.name,
+      address: place.formatted_address,
+      loc: place.geometry.location,
+      id: place.id,
+      place_id: place.place_id,
+      phone: place.international_phone_number,
+      desc: "",
+      user: userID,
+      type: "place"
+    };
+
+    //basic formatting for the address -- there is an issue here
+    myObj.address = myObj.address.replace(" - ", " ");
+    myObj.address = myObj.address.replace(" -", " ");
+    myObj.address = myObj.address.replace("Abu Dhabi", "");
+    myObj.address = myObj.address.replace("United Arab Emirates", "");
+
+    var notinArray = true;
+    myPlaces.forEach(function(found) {
+      if (found.user == user && found.place_id == myObj.place_id) {
+        notinArray = false;
+        myMarkers.forEach(function(foundMark){
+          if(found.place_id == foundMark.place_id) {
+            map.setCenter(found.loc);
+            infowindow.setContent(found.content);
+            infowindow.open(map, foundMark);
+            return;
+          }
+        });
+        //return;
+      }
+    });
+
+    if (notinArray) {
+      map.setCenter(myObj.loc);
+      initMapMarker(myObj, true, true, userID);
+    }
+  });
 }
 
 function setMapOnPlaces(placeList, map, edit, user) {
-  $("#nav li").each(function() {  
-    if($(this).text() == user) {
-      $(this).css('background-color', lightGray);
-      $(this).css('box-shadow', boxShadow);
-    } else {
-      $(this).css('background-color', 'white');
-      $(this).css('color', textColor);
-      $(this).css('box-shadow', 'none');
+  console.log(`setting map on user: ${user}`);
+  
+  if(edit) {
+    $("#pac-input").show();
+  }
+  
+  myPlaces = [];
+  placeList.forEach(function(obj) {
+    if(obj.type !== "user") {
+      myPlaces.push(obj);  
     }
   });
   
@@ -121,17 +111,19 @@ function setMapOnPlaces(placeList, map, edit, user) {
   
   var thisMap = [];
   
-  placeList.forEach(function(obj){
+  console.log(user);
+  
+  myPlaces.forEach(function(obj){
     if (obj.user === user){
       thisMap.push(obj);
-      initMapMarker(obj, false, edit);
+      initMapMarker(obj, false, edit, user);
     }
   });
   displayPlacesList(thisMap, edit);
   infowindow.close();
 }
 
-function initMapMarker(myObj, temp, edit) {
+function initMapMarker(myObj, temp, edit, user) {
   var curMap = [];
   
   var marker = new google.maps.Marker({
@@ -199,7 +191,7 @@ function initMapMarker(myObj, temp, edit) {
     if(myPlaces.indexOf(myObj) == -1) {
       myObj.desc = $("#"+inputID).val();
       myPlaces.push(myObj);
-      saveData(myObj, marker);
+      saveData(myObj, marker, user);
     }
 
     //-----Sidebar logic-----//
@@ -217,7 +209,7 @@ function displayPlacesList(placeList, edit) {
   var display = '';
   
   placeList.forEach(function(obj){
-    display += makeListHTML(obj, edit);
+    display += makeListHTML(obj, edit); 
   });
   
   $('#list').on('click', '.map-button', function (evt) {

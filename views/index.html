@@ -12,7 +12,7 @@
     
     <script type="text/javascript">
       window.currentPage = '<%= page %>' || 'notEdit';
-      window.theUser = '<%= user %>';
+      window.user = '<%= user ? user.id : '' %>'
     </script>
     
   </head>
@@ -27,12 +27,18 @@
     </div>
     
     <div id="select-map">
-      <h1>Choose Your Map:</h1>
-      <!--<a>Restaurants</a>-->
-      <!--<a>Shisha Cafes</a>-->
-      <!--<a>Ladies' Night</a>-->
-      <a href="#"><%= user.displayName %></a>
-      <a href="/auth/google">Sign In with Google</a>
+      <% if (user) {%>
+        <h1>Welcome back <%= user.displayName %></h1>
+      <% }; %>
+      <h2 id="top">Choose Your Map:</h2>
+    
+      <hr>
+      <% if (user) {%>
+        <a class="me" href="#">Edit My Map</a>  
+        <a href="/logout">Log Out</a>  
+      <% } else { %>
+        <a href="/auth/google">Sign In with Google</a>
+      <% } %>
     </div>
     
     <div id='container'>
@@ -42,14 +48,16 @@
   <!--        <img src="../public/img/wordmark.png">-->
           <a id="mobile-nav-button">Menu</a>
         </div>
-<!--
-        <ul id="nav">
-          <li>Restaurants</li>
-          <li>Shisha Cafes</li>
-          <li>Ladies' Night</li>
-        </ul>
--->
-        <button id="feedback" onclick="window.open('https://docs.google.com/forms/d/1CRcqfonMd1pgwd9rmkJy061rJOLbSXyvLqkyuve6N-g/')">Feedback?</button>
+        
+        <a id="maplist">Map List</a>
+        
+        <% if (user) {%>
+          <a class="me" href="#">Edit <%= user.displayName %>'s Map</a>  
+          <a href="/logout">Log Out</a>
+        <% } else { %>
+          <a href="/auth/google">Sign In with Google</a>
+        <% } %>
+<!--        <button id="feedback" onclick="window.open('https://docs.google.com/forms/d/1CRcqfonMd1pgwd9rmkJy061rJOLbSXyvLqkyuve6N-g/')">Feedback?</button>-->
       </header>
       <main>
         <div id="map">
