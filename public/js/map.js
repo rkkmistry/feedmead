@@ -91,6 +91,8 @@ function setMapOnPlaces(placeList, map, edit, user) {
   
   if(edit) {
     $("#pac-input").show();
+  } else {
+    $("#pac-input").hide();
   }
   
   myPlaces = [];
