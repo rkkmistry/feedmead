@@ -1,37 +1,66 @@
-function selectMap(edit) {
-  $('#select-map').on('click', 'a', function (evt) {
-    evt.stopPropagation(); evt.preventDefault(); evt.stopImmediatePropagation();
-    user = $(this).text();
+function selectMap(data) {
+  var choiceString = "";
+  
+  data.forEach(function(obj) {
+    if(obj.type == "user" && obj.id !== user) {
+      choiceString += `<a id="${obj.id}" class="userChoice">${obj.name}</a>`;        
+    }
+  });
+  $(choiceString).insertAfter("#top");
+        
+  $('#select-map').on('click', '.userChoice', function (evt) {
+    var theUserID = $(this).attr("id");
+      
     $("#select-map").hide();
     $("#container").css("pointer-events", "auto");
     $("#container").css("filter", "none");
     $("#container").css("-webkit-filter", "none");
-    setMapOnPlaces(myPlaces, map, edit, user);
+    console.log("I'm looking at someone else's map");
+    setMapOnPlaces(data, map, false, theUserID);
   });
+  
+  $('.me').click(function () {
+    $("#select-map").hide();
+    $("#container").css("pointer-events", "auto");
+    $("#container").css("filter", "none");
+    $("#container").css("-webkit-filter", "none");
+    console.log("Let me edit my maps");
+    console.log(user);
+    setMapOnPlaces(data, map, true, user);
+  });
+  
+  $('#maplist').click(function(){
+    $("#select-map").show();
+    $("#container").css("pointer-events", "none");
+    $("#container").css("filter", "blur(5px)");
+    $("#container").css("-webkit-filter", "blur(5px)");
+  });
+  
+  
 }
 
-function getData(edit, user, callback) {
+function getData(callback) {
   $.ajax({
-      url: '/data/' + user,
+      url: '/data/',
       type: 'GET',
       dataType: 'json',
       error: function(data) {
-        
         alert("Oh No! Try a refresh?");
       },
       success: function(data) {
-        
-        callback(edit);
-        initMap(data, edit);
+        var filterArray = [];
+        data.forEach(function(obj) {
+            filterArray.push(obj.doc);  
+        });
+        callback(filterArray);
         $("#loading").hide();
         $("#container").show();
         $("#select-map").show();
-        
       }
     });
 }
 
-function saveData(obj, marker){
+function saveData(obj, marker, user){
   $.ajax({
     url: '/save',
     type: 'POST',
@@ -41,12 +70,10 @@ function saveData(obj, marker){
      
     },
     success: function(resp){
-  
       obj._id = resp.id;
       obj._rev = resp.rev;
-      
       marker.setMap(null);
-      initMapMarker(obj, false, true); 
+      initMapMarker(obj, false, true, user); 
     }
   });
 }
@@ -70,11 +97,7 @@ function deleteData(obj, marker, edit){
   //Make sure you want to delete
   var conf = confirm("Are you sure you want to delete '" + obj.name + "' ?");
   if (!conf) return;
-  
-  
-  
   marker.setMap(null);
-  
   //Proceed if confirm is true
   $.ajax({
       url: '/delete',
@@ -90,30 +113,12 @@ function deleteData(obj, marker, edit){
   });
 }
 
-$(document).ready(function(){
-  var edit;
-  $("#select-map").hide();
-  $("#container").hide();
+$(document).ready(function(){ 
+//  $("#select-map").hide();
+//  $("#container").hide();
   
-  if (currentPage === 'editPage'){
-    
-    edit = true;
-    var secret = prompt('Please enter password');
-    if (secret === 'krishan'){
-      getData(edit, '', selectMap);
-      } else {
-        alert("Go away.");
-      }
-  } else {
-    edit = false;
-    
-    getData(edit, '', selectMap);
-  }
-  
-  $("#nav li").click(function(){
-    user = $(this).text();
-    setMapOnPlaces(myPlaces, map, edit, user);
-  });
+  initMap();
+  getData(selectMap);
   
   $("#mobile-nav-button").click(function(){
     $("#nav").stop().slideToggle();
