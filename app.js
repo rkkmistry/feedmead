@@ -7,6 +7,25 @@ var session = require('express-session');
 var _ = require('underscore');
 var passport = require('passport');
 var GoogleStrategy = require('passport-google-oauth').OAuth2Strategy;
+var nano = require('nano')('https://rkkmistry.cloudant.com/');
+var db = nano.use('feedme-dev');
+
+
+//nano.db.get('feedme-dev', function(err, body) {
+//  if (!err) {
+//    console.log(body);
+//  }
+//});
+
+db.get('rabbit', { revs_info: true }, function(err, body) {
+  if (!err){
+    console.log(body);
+  }
+  else{
+    console.log(err);
+  }
+  });
+
 
 //Create an 'express' object
 var app = express();
@@ -85,43 +104,76 @@ passport.use(new GoogleStrategy({
           }
         });
         
-        var stupidBoolean = true;
         
-        theRows.forEach(function(elem){
-          if (elem.doc.id == profile.id) {
-            console.log("Already a user!")
-            stupidBoolean = false;
-            return done(null, profile);
-          }
-        })
-        
-        if(stupidBoolean) {
-           //if person is not a user then make new profile
-            Request.post({
-              url: cloudant_URL,
-              auth: {
-                  user: cloudant_KEY,
-                  pass: cloudant_PASSWORD
-              },
-              json: true,
-              body: userDataObj
-            },
-            function (error, response, body) {
-              if (response.statusCode == 201) {
-                console.log("Saved new user");
-                return done(null, profile);
-              } else {
-                console.log("Error: " + res.statusCode);
-                res.send("Something went wrong...");
-              }
-            });
+        if(theRows.every(function(elem){return elem.doc.id !== profile.id})) {
+          saveTheUser(userDataObj);
+        } else {
+          console.log("Already a user!")
+          return done(null, profile);
         }
+        
+//        var stupidBoolean = true;
+//        
+//        theRows.forEach(function(elem){
+//          if (elem.doc.id == profile.id) {
+//            console.log("Already a user!")
+//            stupidBoolean = false;
+//            return done(null, profile);
+//          }
+//        });
+//        
+//        if(stupidBoolean) {
+//           //if person is not a user then make new profile
+//            Request.post({
+//              url: cloudant_URL,
+//              auth: {
+//                  user: cloudant_KEY,
+//                  pass: cloudant_PASSWORD
+//              },
+//              json: true,
+//              body: userDataObj
+//            },
+//            function (error, response, body) {
+//              if (response.statusCode == 201) {
+//                console.log("Saved new user");
+//                return done(null, profile);
+//              } else {
+//                console.log("Error: " + res.statusCode);
+//                res.send("Something went wrong...");
+//              }
+//            });
+//        }
  
       });
       
     });
   }
 ));
+
+
+function saveTheUser(userObj, callback){
+    Request.post({
+        url: cloudant_URL,
+        auth: {
+            user: cloudant_KEY,
+            pass: cloudant_PASSWORD
+        },
+        json: true,
+        body: userObj
+      },
+      function (error, response, body) {
+        if (response.statusCode == 201) {
+          console.log("Saved new user");
+          return done(null, profile);
+        } else {
+          console.log("Error: " + res.statusCode);
+          res.send("Something went wrong...");
+        }
+      });
+}
+
+
+
 
 /*---------------
 //DATABASE CONFIG
@@ -144,8 +196,14 @@ var cloudant_URL = "https://rkkmistry.cloudant.com/" + cloudant_DB;
 //ROUTES
 ----------------*/
 
+
 //Respond with the main view
 app.get("/", function(req, res) {
+  console.log("--------------------");
+  console.log(req.url);
+  console.log(req.headers);
+  console.log(req.ip);
+  console.log("--------------------");
   res.render('index.html', {page: 'homePage', user: req.user});
 });
 
@@ -159,7 +217,7 @@ app.get('/auth/google',
 app.get('/auth/google/callback', 
   passport.authenticate( 'google', { 
     successRedirect: '/edit',
-    failureRedirect: '/login'
+    failureRedirect: '/'
   }
 ));
 
@@ -187,7 +245,7 @@ app.get("/data", function(req, res) {
 	},
 	function (error, response, body){
       //Send the data
-      console.log(body.rows); 
+      //console.log(body.rows); 
       res.json(body.rows);
 	});
 });
