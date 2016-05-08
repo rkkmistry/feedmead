@@ -34,7 +34,7 @@ function initMap() {
   autocomplete.bindTo('bounds', map);
 
   autocomplete.addListener('place_changed', function() {
-    console.log(userID);
+    console.log(user);
     
     myMarkers.forEach(function(marker) {
       if (marker.temp) {
@@ -54,7 +54,7 @@ function initMap() {
       place_id: place.place_id,
       phone: place.international_phone_number,
       desc: "",
-      user: userID,
+      user: user,
       type: "place"
     };
 
@@ -82,7 +82,7 @@ function initMap() {
 
     if (notinArray) {
       map.setCenter(myObj.loc);
-      initMapMarker(myObj, true, true, userID);
+      initMapMarker(myObj, true, true, user);
     }
   });
 }

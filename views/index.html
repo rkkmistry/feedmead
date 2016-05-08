@@ -12,7 +12,7 @@
     
     <script type="text/javascript">
       window.currentPage = '<%= page %>' || 'notEdit';
-      window.user = '<%= user ? user.id : '' %>'
+      window.user = '<%= user ? user.id : '' %>';
     </script>
     
   </head>
@@ -28,7 +28,7 @@
     
     <div id="select-map">
       <% if (user) {%>
-        <h1>Welcome back <%= user.displayName %></h1>
+        <h1>Welcome back <%= user.name %></h1>
       <% }; %>
       <h2 id="top">Choose Your Map:</h2>
     
@@ -52,7 +52,7 @@
         <a id="maplist">Map List</a>
         
         <% if (user) {%>
-          <a class="me" href="#">Edit <%= user.displayName %>'s Map</a>  
+          <a class="me" href="#">Edit <%= user.name %>'s Map</a>  
           <a href="/logout">Log Out</a>
         <% } else { %>
           <a href="/auth/google">Sign In with Google</a>

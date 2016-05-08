@@ -1,4 +1,7 @@
-//Set up requirements
+/*---------------
+//REQUIREMENTS
+----------------*/
+
 var express = require("express");
 var Request = require('request');
 var bodyParser = require('body-parser');
@@ -7,25 +10,30 @@ var session = require('express-session');
 var _ = require('underscore');
 var passport = require('passport');
 var GoogleStrategy = require('passport-google-oauth').OAuth2Strategy;
-var nano = require('nano')('https://rkkmistry.cloudant.com/');
-var db = nano.use('feedme-dev');
+var Cloudant = require('cloudant');
+var env2 = require('env2')('config.env');
 
+/*---------------
+//DATABASE CONFIG
+----------------*/
 
-//nano.db.get('feedme-dev', function(err, body) {
-//  if (!err) {
-//    console.log(body);
-//  }
-//});
+var me = process.env.cloudant_USERNAME;
+var password = process.env.cloudant_USERPASS;
+var cloudant = Cloudant({account:me, password:password});
 
-db.get('rabbit', { revs_info: true }, function(err, body) {
-  if (!err){
-    console.log(body);
-  }
-  else{
-    console.log(err);
-  }
-  });
+//Production Details
+//var cloudant_KEY = process.env.PROD_KEY;
+//var cloudant_PASSWORD = process.env.PROD_PASSWORD;
+//var db = cloudant.db.use(process.env.PROD_DB);
 
+//Development Details
+var cloudant_KEY = process.env.DEV_KEY;
+var cloudant_PASSWORD = process.env.DEV_PASSWORD;
+var db = cloudant.db.use(process.env.DEV_DB);
+
+/*---------------
+APP SETUP 
+----------------*/
 
 //Create an 'express' object
 var app = express();
@@ -38,12 +46,23 @@ app.set('view engine', 'html');
 //Add connection to the public folder for css & js files
 app.use(express.static(__dirname + '/public'));
 
+//passport.serializeUser(function(user, done) {
+//  done(null, user);
+//});
+
 passport.serializeUser(function(user, done) {
-  done(null, user);
+  done(null, user.id);
 });
 
-passport.deserializeUser(function(obj, done) {
-  done(null, obj);
+passport.deserializeUser(function(id, done) {
+  db.list({include_docs: true}, function(err, body) {
+      body.rows.forEach(function(user){
+        if(id == user.doc.id) {
+          console.log("USER: ", user);
+          done(err, user.doc);
+        }
+      });
+  });
 });
 
 // Enable json body parsing of application/json
@@ -51,10 +70,6 @@ app.use(cookieParser());
 app.use(session({ 
 	secret: 'cookie_secret',
 	name:   'kaas',
-//	store:  new RedisStore({
-//		host: '127.0.0.1',
-//		port: 6379
-//	}),
 	proxy:  true,
     resave: true,
     saveUninitialized: true
@@ -69,9 +84,9 @@ app.use(passport.session());
 ----------------*/
 
 passport.use(new GoogleStrategy({  
-    clientID: "310950737477-acoudi08epsnul7vp0qnejt95ria91i4.apps.googleusercontent.com",
-    clientSecret: "UPkyLSMsA0AD9_Q3pD8j1sj9",
-    callbackURL: "http://localhost:3000/auth/google/callback", 
+    clientID: process.env.client_ID,
+    clientSecret: process.env.client_SECRET,
+    callbackURL: process.env.DEV_URL + "/auth/google/callback", 
     passReqToCallback: true
   },
   function(request, accessToken, refreshToken, profile, done) {
@@ -80,140 +95,61 @@ passport.use(new GoogleStrategy({
     console.log("*********************");      
 
     process.nextTick(function () {
-      
       userDataObj = {
         type: "user",
         id: profile.id,
         name: profile.displayName
       }
-      
-      //get all users
-      Request.get({
-        url: cloudant_URL+"/_all_docs?include_docs=true",
-        auth: {
-            user: cloudant_KEY,
-            pass: cloudant_PASSWORD
-        },
-        json: true
-      },
-      function (error, response, body){
-        var theRows = body.rows;  
-        theRows = theRows.filter(function (d) {
-          if (d.doc.type == "user") {
-            return d.doc;
+          
+      db.list({include_docs: true}, function(err, body) {
+        if (!err) {
+          if(body.rows.every(checkUser)) {
+            console.log("Saving a New User!");
+            saveUser(userDataObj);
+          } else {
+            console.log("Already a User!");
+            return done(null, profile);
           }
-        });
-        
-        
-        if(theRows.every(function(elem){return elem.doc.id !== profile.id})) {
-          saveTheUser(userDataObj);
         } else {
-          console.log("Already a user!")
-          return done(null, profile);
+          console.log("Something went wrong getting docs...", err);
         }
-        
-//        var stupidBoolean = true;
-//        
-//        theRows.forEach(function(elem){
-//          if (elem.doc.id == profile.id) {
-//            console.log("Already a user!")
-//            stupidBoolean = false;
-//            return done(null, profile);
-//          }
-//        });
-//        
-//        if(stupidBoolean) {
-//           //if person is not a user then make new profile
-//            Request.post({
-//              url: cloudant_URL,
-//              auth: {
-//                  user: cloudant_KEY,
-//                  pass: cloudant_PASSWORD
-//              },
-//              json: true,
-//              body: userDataObj
-//            },
-//            function (error, response, body) {
-//              if (response.statusCode == 201) {
-//                console.log("Saved new user");
-//                return done(null, profile);
-//              } else {
-//                console.log("Error: " + res.statusCode);
-//                res.send("Something went wrong...");
-//              }
-//            });
-//        }
- 
       });
-      
     });
-  }
-));
+  
+    function saveUser(userObj, callback){
+      db.insert(userObj, function(err, body) {
+          if (!err) {
+            console.log("New User Saved!");
+            return done(null, profile);
+          } else {
+            res.send("Something went wrong saving new user...");
+            console.log(err);
+          }     
+        });
+      }
 
-
-function saveTheUser(userObj, callback){
-    Request.post({
-        url: cloudant_URL,
-        auth: {
-            user: cloudant_KEY,
-            pass: cloudant_PASSWORD
-        },
-        json: true,
-        body: userObj
-      },
-      function (error, response, body) {
-        if (response.statusCode == 201) {
-          console.log("Saved new user");
-          return done(null, profile);
-        } else {
-          console.log("Error: " + res.statusCode);
-          res.send("Something went wrong...");
-        }
-      });
-}
-
-
-
-
-/*---------------
-//DATABASE CONFIG
-----------------*/
-var cloudant_USER = 'rkkmistry';
-
-//production version
-//var cloudant_DB = 'feedme';
-//var cloudant_KEY = 'iseedgencedgencelivested';
-//var cloudant_PASSWORD = 'd42e3613059f8cea113b1c002bb1ddc8b42e482c';
-
-//development version
-var cloudant_DB = 'feedme-dev';
-var cloudant_KEY = 'stryoustromedispentillet';
-var cloudant_PASSWORD = 'c13f6c01943b3de8484e6d93d6ed63b84c2f2b3c';
-
-var cloudant_URL = "https://rkkmistry.cloudant.com/" + cloudant_DB;
+    function checkUser(elem) {
+      return elem.doc.id !== profile.id && elem.doc.type == "user";
+    }
+}));
 
 /*---------------
 //ROUTES
 ----------------*/
 
-
-//Respond with the main view
+//HOME
 app.get("/", function(req, res) {
-  console.log("--------------------");
-  console.log(req.url);
-  console.log(req.headers);
-  console.log(req.ip);
-  console.log("--------------------");
   res.render('index.html', {page: 'homePage', user: req.user});
 });
 
-//for login
+//LOGIN
 app.get('/auth/google',
   passport.authenticate('google', {
     scope: ['https://www.googleapis.com/auth/plus.login'] 
   }
 ));
 
+//LOGIN CALLBACK
 app.get('/auth/google/callback', 
   passport.authenticate( 'google', { 
     successRedirect: '/edit',
@@ -221,139 +157,71 @@ app.get('/auth/google/callback',
   }
 ));
 
+//LOGOOUT
 app.get('/logout', function(req, res){
   req.logout();
   res.redirect('/');
 });
 
-//Respond with the main view
+//EDIT
 app.get("/edit", ensureAuthenticated, function(req, res) {
   res.render('index.html', {page: 'homePage', user: req.user});
 });
 
-//Respond with data
+//GET DATA
 app.get("/data", function(req, res) {
-  console.log('Making a db request for all entries');
-	//Use the Request lib to GET the data in the CouchDB on Cloudant
-	Request.get({
-		url: cloudant_URL+"/_all_docs?include_docs=true",
-		auth: {
-			user: cloudant_KEY,
-			pass: cloudant_PASSWORD
-		},
-		json: true
-	},
-	function (error, response, body){
-      //Send the data
-      //console.log(body.rows); 
+  console.log('Get all db entries');
+  db.list({include_docs: true}, function(err, body) {
+    if (!err) {
+      console.log('Got all entries');
       res.json(body.rows);
-	});
+    } else {
+      console.log("Something went wrong getting docs...", err);
+    }
+  });
 });
 
-//app.get("/data/:user", function(req,res){
-//	var user = req.params.user;
-//	console.log('Places for ' + user);
-//	
-//  // Use the Request lib to GET the data in the CouchDB on Cloudant
-//	Request.get({
-//		url: cloudant_URL+"/_all_docs?include_docs=true",
-//		auth: {
-//			user: cloudant_KEY,
-//			pass: cloudant_PASSWORD
-//		},
-//		json: true
-//	},
-//	function (error, response, body){
-//		var theRows = body.rows;
-//		// Filter the results to match the current word
-//		var filteredRows = theRows.filter(function (d) {
-//          if (d.doc.user == user) {
-//            console.log(d.doc);
-//            return d.doc;
-//          }
-//		});
-//		res.json(filteredRows);
-//	});
-//});
-
-//SAVE an object to the db
+//SAVE
 app.post("/save", function(req,res){
-	console.log("A POST!!!!");
-	//Get the data from the body
-	var data = req.body;
-	console.log(data);
-	//Send the data to the db
-	Request.post({
-		url: cloudant_URL,
-		auth: {
-			user: cloudant_KEY,
-			pass: cloudant_PASSWORD
-		},
-		json: true,
-		body: data
-	},
-	function (error, response, body){
-		if (response.statusCode == 201){
-			console.log("Saved!");
-			res.json(body);
-		}
-		else{
-			console.log("Uh oh...");
-			console.log("Error: " + res.statusCode);
-			res.send("Something went wrong...");
-		}
-	});
+  console.log("Trying to save...");
+  db.insert(req.body, function(err, body) {
+    if (!err) {
+      console.log("New Thing Saved!");
+      res.json(body);
+    } else {
+      res.send("Something went wrong saving the thing...");
+      console.log(err);
+    }     
+  });
 });
 
 //UPDATE
 app.post("/update", function(req,res){
-	console.log("Updating an object");
-	var theObj = req.body;
-	//Send the data to the db
-	Request.post({
-		url: cloudant_URL,
-		auth: {
-			user: cloudant_KEY,
-			pass: cloudant_PASSWORD
-		},
-		json: true,
-		body: theObj
-	},
-	function (error, response, body){
-		if (response.statusCode == 201){
-			console.log("Updated!");
-			res.json(body);
-		}
-		else{
-			console.log("Uh oh...");
-			console.log("Error: " + res.statusCode);
-			res.send("Something went wrong...");
-		}
-	});
+  console.log("Updating something!");
+  db.insert(req.body, function(err, body) {
+    if (!err) {
+      console.log("Thing Updated!");
+      res.json(body);
+    } else {
+      res.send("Something went wrong updating the thing...");
+      console.log(err);
+    }     
+  });
 });
 
 //DELETE
 app.post("/delete", function(req,res){
-	console.log("Deleting an object");
-	var theObj = req.body;
-	//The URL must include the obj ID and the obj REV values
-	var theURL = cloudant_URL + '/' + theObj._id + '?rev=' + theObj._rev;
-	//Need to make a DELETE Request
-	Request.del({
-		url: theURL,
-		auth: {
-			user: cloudant_KEY,
-			pass: cloudant_PASSWORD
-		},
-		json: true
-	},
-	function (error, response, body){
-		console.log(body);
-		res.json(body);
-	});
+  console.log("Deleting an object!");
+  db.destroy(req.body, function(err, body) {
+    if (!err) {
+      console.log("Object deleted!");
+      console.log(body);  
+    } else {
+      console.log("Something went wrong deleting...", error);
+    }
+  });
 });
 
-//do i even need this?
 function ensureAuthenticated(req, res, next) {
   if (req.isAuthenticated()) { return next(); }
   res.redirect('/auth/google');
